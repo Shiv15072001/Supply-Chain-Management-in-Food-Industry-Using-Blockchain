@@ -1,96 +1,74 @@
-import {useState, useEffect, useContext} from 'react'
-
-// import { TrackingContext } from '../Conetxt/Tracking';
-import {Nav1,Nav2, Nav3} from "../Components/index"
+import { useState, useContext } from 'react';
+import { Nav1, Nav2 } from "../Components/index";
 import { SupplyChainContext } from '@/conetxt/SupplyChain';
 
-// import {}
-
-
-export default () => {
-    const [state, setState] = useState(true);
-    const { connectWallet,currentUser } = useContext(SupplyChainContext);
+export default function Navbar() {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { connectWallet, currentUser } = useContext(SupplyChainContext);
 
     const navigation = [
-
-        {
-            title: "Home",
-            path: "#"
-        },
-        {
-            title: "Services",
-            path: "#"
-        },
-        {
-            title: "Contact Us",
-            path: "#"
-        },
-        {
-            title: "Erc20",
-            path: "#"
-        }
+        { title: "Home", path: "#" },
+        { title: "Services", path: "#" },
+        { title: "Contact Us", path: "#" },
+        { title: "ERC20", path: "#" },
     ];
 
-    // useEffect(() => {
-    //     document.onclick = (e) => {
-    //         const target = e.target;
-    //         if (!target.closest(".menu-btn")) setState(false);
-    //     };
-    // }, []);
-
     return (
-        <nav
-            className={`bg-white pb5 md:text-sm ${state ? "shadow-lg roundedxl border mx-2 mt-2 md:shadow-none md:border-none md:mx-2 md:mt-0" : ""}`}
-        >
-            <div className='gap-x-14 items-center max-w-screen-xl mx-auto px-4 md:flex md:px-8'>
-                <div className='flex items-center justify-between py-5 md:block'>
-                    <a href="javascript:void(0)">
+        <nav className="bg-white shadow-md relative">
+            <div className="max-w-screen-xl mx-auto px-4 md:flex md:items-center md:justify-between py-4">
+                {/* Logo */}
+                <div className="flex items-center justify-between">
+                    <a href="#">
                         <img
                             src="https://www.floatui.com/logo.svg"
                             width={120}
                             height={50}
-                            alt="Float UI logo"
+                            alt="Float UI Logo"
+                            className="object-contain"
                         />
                     </a>
-                    <div className='md:hidden'>
+                    <div className="md:hidden">
                         <button
-                            className="menu-btn text-gray-500 hover:text-grey-800"
-                            
+                            className="text-gray-700 hover:text-gray-900 focus:outline-none"
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
                         >
-                            {state ? <Nav1 /> : <Nav2 />}
+                            {isMenuOpen ? <Nav1 /> : <Nav2 />}
                         </button>
                     </div>
                 </div>
-                <div
-                    className={`flex-1 items-center mt-8 md:mt-0 md:flex ${state ? "block" : "hidden"}`}>
-                    <ul className='justify-center items-center space-y-6 md:flex md:space-x-6 md:space-y-0'>
-                        {navigation.map((item, idx) => {
-                            return (
-                                <li key={idx} className='text-grey-700 hover:text-gray-900'>
-                                    <a href={item.path} className='block'>
-                                        {item.title}
-                                    </a>
-                                </li>
-                            )
-                        })}
-                    </ul>
-                    <div className="flex-1 gap-x-6 items-center justify-end mt-6 space-y-6 md:flex md:space-y-0 md:mt-0">
-                        (
-                            <p className="flex items-center justify-center gap-x-1 py-2 px-4 text-white font-medium bg-gray-800 hover:bg-gray-700 active:bg-gray-900 rounded-full md:inline-flex"></p>
-                        ) : (
-                            <button 
-                            onClick={() => connectWallet()}
-                                className="flex items-center justify-center gap-x-1 py-2 px-4 text-white font-medium bg-gray-800 hover:bg-gray-700 active:bg-gray-900 rounded-full md:inline-flex" >
-                                {`${currentUser == "" ? `Connect Wallet`: currentUser.slice(0,25)}`}
-                                
-                            </button>
-                        )
-                    </div>
 
+                {/* Menu Items */}
+                <div className={`flex-1 justify-between items-center mt-6 md:mt-0 md:flex ${isMenuOpen ? "block" : "hidden"}`}>
+                    <ul className="flex flex-col space-y-4 md:flex-row md:space-x-8 md:space-y-0">
+                        {navigation.map((item, idx) => (
+                            <li key={idx}>
+                                <a
+                                    href={item.path}
+                                    className="text-gray-700 hover:text-indigo-600 font-medium transition duration-200"
+                                >
+                                    {item.title}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+
+                    {/* Connect Wallet Button */}
+                    <div className="mt-4 md:mt-0">
+                        {currentUser ? (
+                            <p className="flex items-center py-2 px-4 text-white bg-green-600 hover:bg-green-700 rounded-full transition duration-300 font-semibold text-sm">
+                                {currentUser.slice(0, 6)}...{currentUser.slice(-4)}
+                            </p>
+                        ) : (
+                            <button
+                                onClick={connectWallet}
+                                className="py-2 px-6 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white font-semibold text-sm transition duration-300"
+                            >
+                                Connect Wallet
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         </nav>
-
-    )
+    );
 }
-

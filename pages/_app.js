@@ -15,7 +15,7 @@
 //     );
 // }
 
-import Navbar from "@/components/Navbar";
+import {Navbar} from "../Components/index";
 import "../styles/globals.css";
 import { SupplyChainProvider } from "@/conetxt/SupplyChain";
 import { AuthProvider } from "@/conetxt/AuthContext"; // New Auth Provider for Firebase

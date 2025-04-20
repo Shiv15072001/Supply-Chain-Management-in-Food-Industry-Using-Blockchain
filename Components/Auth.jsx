@@ -47,7 +47,12 @@ const Auth = ({ setUser }) => {
             let userData;
 
             if (isRegistering) {
-                await registerUser(role);
+                const blockchainRegistered = await registerUser(role,walletAddress);
+                if (!blockchainRegistered) {
+                    // ❌ Blockchain registration failed, stop here
+                    setLoading(false);
+                    return;
+                }
                 userData = await registerUsers(email, password, shopName, role, walletAddress);
             } else {
 // 🔹 Login user & fetch registered wallet from Firestore

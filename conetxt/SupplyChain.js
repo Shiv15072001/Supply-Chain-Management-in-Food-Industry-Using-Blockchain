@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Web3Modal from "web3modal";
+// import Web3Modal from "web3modal";
 import { ethers } from "ethers";
-
-// use isWalletRegisteredInFirestore function here in firebase
-// import { isWalletRegisteredInFirestore } from "../utils/firebaseHelpers"; // adjust path
-
 
 // Import Smart Contract ABI
 import supplyChainABI from "../conetxt/SupplyChain.json";
@@ -26,7 +22,7 @@ export const SupplyChainProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState("");
     const [userRole, setUserRole] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    
+
     //**Check if Wallet is Connected**
     const checkIfWalletConnected = async () => {
         try {
@@ -34,13 +30,12 @@ export const SupplyChainProvider = ({ children }) => {
                 console.log("MetaMask is not installed.");
                 return;
             }
-
             const accounts = await window.ethereum.request({ method: "eth_accounts" });
             if (accounts.length) {
                 setCurrentUser(accounts[0]);
                 await fetchUserRole(accounts[0]); // Fetch role on connect
             } else {
-                console.log("No accounts found. Please connect MetaMask.");
+                alert("No accounts found. Please connect MetaMask.");
             }
         } catch (error) {
             console.error("Error checking wallet connection:", error);
@@ -67,52 +62,258 @@ export const SupplyChainProvider = ({ children }) => {
         }
     };
 
-    const registerUser = async (role) => {
+    const registerUser = async (role, walletAddress) => {
         try {
             if (!currentUser) {
                 alert("Please connect your wallet first.");
-                return;
+                return false;
+            }
+            if (currentUser.toLowerCase() !== walletAddress.toLowerCase()) {
+                alert("Please Connect to Correct Wallet.");
+                return false;
             }
 
-            // // 🔍 Check Firestore first
-            // const walletExists = await isWalletRegisteredInFirestore(currentUser);
-            // if (walletExists) {
-            //     alert("❌ This wallet address is already registered in Firestore!");
-            //     return;
-            // }
-            // console.log("Wallet Exist", walletExists)
-    
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const contract = fetchContract(signer);
-    
+
             //  Fetch user role
             const existingRole = await contract.getRole(currentUser);
             console.log("Fetched role for user:", existingRole);
-    
+
             //  Extract role from tuple
             const [, roleValue, isRegistered] = existingRole;
-    
+
             //  Ensure correct check for registration
             if (isRegistered || roleValue.toString() !== "0") {
-                alert(" You are already registered!");
-                return;
+                alert("You are already registered!");
+                return false;
             }
-    
+
             //  Register the user
             const tx = await contract.register(role);
             await tx.wait();
-    
+
             console.log(" User Registered:", role);
             await fetchUserRole(currentUser); // Update user role after registration
+            return `✅ User Registered Successfully! ${tx}`;
         } catch (error) {
             console.error("Error registering user:", error);
             alert(" Registration failed: " + (error.reason || error.message));
         }
     };
+
+    const addProducts = async (productitem) => {
+        try {
+            const {
+                croptype,
+                harvestdate,
+                location,
+                farmingpractice,
+                certification,
+                temperature,
+                price,
+            } = productitem;
+
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const contract = fetchContract(signer);
+
+            const tx = await contract.addProduct(
+                croptype,
+                new Date(harvestdate).getTime(),
+                location,
+                farmingpractice,
+                certification,
+                temperature,
+                price
+            );
+
+            const receipt = await tx.wait(); // Wait for transaction confirmation
+
+            // 🔍 Extract event from logs
+            const event = receipt.logs
+                .map(log => {
+                    try {
+                        return contract.interface.parseLog(log);
+                    } catch (e) {
+                        return null;
+                    }
+                })
+                .filter(log => log && log.name === "ProductAdded")[0];
+
+            if (event) {
+                const productId = event.args.id;
+                const crop = event.args.cropType;
+                const farmer = event.args.farmer;
+
+                console.log("Product Added:");
+                console.log("Product ID:", productId.toString());
+                console.log("Crop Type:", crop);
+                console.log("Farmer:", farmer);
+                return productId.toString();
+            } else {
+                console.warn("⚠️ ProductAdded event not found in logs");
+            }
+
+        } catch (error) {
+            console.error("❌ Error in adding product:", error);
+        }
+    };
+
+    // Fetch all products added by the current logged-in farmer
+    const getFarmerProductDetails = async () => {
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const contract = fetchContract(signer);
+
+            // 🔹 Step 1: Get product IDs for the current farmer
+            const productIds = await contract.getFarmerProductIds();
+
+            const farmerProducts = [];
+
+            // 🔹 Step 2: Loop through each product ID and fetch its details
+            for (let i = 0; i < productIds.length; i++) {
+                const product = await contract.getProductDetails(productIds[i]);
+
+                const productDetail = {
+                    id: product[0].toString(),
+                    cropType: product[1],
+                    harvestDate: new Date(Number(product[2])),
+                    location: product[3],
+                    farmingPractices: product[4],
+                    certifications: product[5],
+                    temperature: product[6].toString(),
+                    price: product[7].toString(),
+                    farmer: product[8],
+                    isSold: product[9],
+                };
+
+                farmerProducts.push(productDetail);
+            }
+
+            console.log("Farmer's Products:", farmerProducts);
+            return farmerProducts;
+
+        } catch (error) {
+            console.error("Error fetching farmer's products:", error);
+            return [];
+        }
+    };
+
+
+
+    // Manufacture view products of all farmer 
+    const getAllProducts = async () => {
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const contract = fetchContract(signer);
+
+            const product = await contract.getAllProducts();
+
+            console.log(product);
+            console.log("Contract Address:", contract.target);
+            return product;
+
+        } catch (error) {
+            console.error("Error fetching product details:", error);
+        }
+    }
+
+
+
+    const requestPurchase = async (index) => {
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const contract = fetchContract(signer);
     
+            const product = await contract.getProductDetails(index);
+            console.log("Product:", product);
+            
+            const price = ethers.parseUnits(product.price.toString(), 18)
+            console.log("Price:", price);
+            const tx = await contract.requestPurchase(index,{
+                value: price,
+            });
+            await tx.wait();
+            console.log("✅ Purchase requested successfully!");
     
+            return "✅ Purchase requested successfully!";
+        } catch (error) {
+            // console.error("❌ Error in requestPurchase:", error);
     
+            if (error?.shortMessage) {
+                return `⚠️ ${error.shortMessage}`;
+            } else if (error?.reason) {
+                return `⚠️ ${error.reason}`;
+            }
+            return "❌ Unknown error occurred!";
+        }
+    };
+    
+
+    const confirmDelivery = async (items) => {
+        try {
+            const { productId, recordedtemp } = items;
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const contract = fetchContract(signer);
+
+            console.log("Contract Address:", contract.target);
+            const balance = await contract.getContractBalance();
+            console.log("Contract Balance:", balance.toString());
+
+            const product = await contract.getProductDetails(productId);
+            console.log("Fetched product details:", product);
+
+            // 1. Check if product exists
+            if (Number(product.id) === 0) {
+                return "⚠️ Product not found!";
+            }
+
+            // 2. Check if product already sold
+            if (product.isSold) {
+                return "⚠️ Product is already sold!";
+            }
+
+            const purchaser = await contract.purchaseRequests(productId);
+
+            if (purchaser.toLowerCase() !== currentUser.toLowerCase()) {
+                return "⚠️ You are not authorized to confirm this delivery!";
+            }
+
+
+            // 5. Check temperature
+            if (Number(product.temperature) !== Number(recordedtemp)) {
+                return `⚠️ Temperature mismatch! Expected: ${product.temperature}, but got: ${recordedtemp}`;
+            }
+
+            // ✅ All checks passed, finally call confirmDelivery
+            const tx = await contract.confirmDelivery(productId, recordedtemp, {
+                gasLimit: 300000,
+            });
+
+            console.log("Transaction sent, waiting...");
+            await tx.wait();
+            console.log("✅ Delivery confirmed successfully!", tx.hash);
+
+            return `✅ Delivery confirmed successfully!`;
+        } catch (error) {
+            console.error("Error in confirmDelivery:", error);
+
+            if (error?.shortMessage) {
+                return `❌ Smart contract error: ${error.shortMessage}`;
+            }
+
+            return "⚠️ Unexpected error during confirmation.";
+        }
+    };
+
+
+
 
     //**Fetch User Role**
     const fetchUserRole = async (address) => {
@@ -134,7 +335,36 @@ export const SupplyChainProvider = ({ children }) => {
     };
 
     useEffect(() => {
+        // connectWallet();
         checkIfWalletConnected();
+    }, []);
+
+    // Listen for wallet disconnect or account change
+    useEffect(() => {
+        if (typeof window.ethereum !== "undefined") {
+            window.ethereum.on("accountsChanged", (accounts) => {
+                if (accounts.length === 0) {
+                    // Disconnected
+                    setCurrentUser("");
+                } else {
+                    //  Switched to different account
+                    setCurrentUser(accounts[0]);
+                }
+            });
+
+            window.ethereum.on("disconnect", () => {
+                console.log("MetaMask disconnected");
+                setCurrentUser("");
+            });
+        }
+
+        // Cleanup when component unmounts
+        return () => {
+            if (window.ethereum && window.ethereum.removeListener) {
+                window.ethereum.removeListener("accountsChanged", () => { });
+                window.ethereum.removeListener("disconnect", () => { });
+            }
+        };
     }, []);
 
     return (
@@ -147,7 +377,12 @@ export const SupplyChainProvider = ({ children }) => {
                 connectWallet,
                 registerUser,
                 fetchUserRole,
-                setCurrentUser
+                setCurrentUser,
+                addProducts,
+                getFarmerProductDetails,
+                getAllProducts,
+                requestPurchase,
+                confirmDelivery,
             }}
         >
             {children}

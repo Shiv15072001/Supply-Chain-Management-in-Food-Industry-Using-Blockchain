@@ -66,8 +66,6 @@ contract SupplyChain {
     mapping(uint256 => uint256) private productIdToIndex;
     //Using of mapping to store the product id and its index in the array allProducts for effiecent search
     // mapping(uint256 => address) public purchaseRequests; // productId => manufacturer address
-    //  Store the manufacturer who requested purchase for each productId
-    mapping(uint256 => address) public purchaseRequests;
 
     uint256 public productCount;
     uint256 public shipmentCount;
@@ -75,11 +73,7 @@ contract SupplyChain {
 
     event UserRegistered(address indexed user, Role role);
     event ProductAdded(uint256 id, string cropType, address farmer);
-    event PurchaseRequested(
-        uint256 productId,
-        address manufacturer,
-        uint256 amount
-    );
+    event PurchaseRequested(uint256 productId, address manufacturer);
     event PaymentReleased(uint256 productId, address farmer, uint256 amount);
     event ShipmentCreated(
         uint256 productId,
@@ -134,7 +128,7 @@ contract SupplyChain {
             farmer: msg.sender,
             isSold: false
         });
-
+    
         products[productCount] = newProduct;
 
         farmerProducts[msg.sender].push(productCount); //Track farmer's product ID
@@ -143,51 +137,39 @@ contract SupplyChain {
         emit ProductAdded(productCount, _cropType, msg.sender);
     }
 
-
+    /// @notice Manufacturer views product and requests purchase
     function requestPurchase(
-    uint256 _productId
-) public payable onlyRole(Role.Manufacturer) {
-    Product storage product = products[_productId];
+        uint256 _productId
+    ) public payable onlyRole(Role.Manufacturer) {
+        Product storage product = products[_productId];
 
-    require(product.price > 0, "Product does not exist");
-    require(!product.isSold, "Product already sold");
-    require(msg.value >= product.price, "Insufficient payment");
+        require(product.price > 0, "Product does not exist");
+        require(!product.isSold, "Product already sold");
+        require(msg.value >= product.price, "Insufficient payment");
 
-    purchaseRequests[_productId] = msg.sender;
-
-    emit PurchaseRequested(_productId, msg.sender, msg.value);
-}
-
+        // purchaseRequests[_productId] = msg.sender; //  Store the request
+        emit PurchaseRequested(_productId, msg.sender);
+    }
 
     /// @notice Manufacturer confirms delivery and validates temperature
-    function confirmDelivery(uint256 _productId, uint256 recordedTemperature)
-        public
-        onlyRole(Role.Manufacturer)
-    {
+    function confirmDelivery(
+        uint256 _productId,
+        uint256 recordedTemperature
+    ) public onlyRole(Role.Manufacturer) {
         Product storage product = products[_productId];
 
         require(!product.isSold, "Product already sold");
-        // Check that the manufacturer who requested can confirm
-        require(
-            purchaseRequests[_productId] == msg.sender,
-            "Unauthorized confirmation!"
-        );
+        // require(purchaseRequests[_productId] == msg.sender, "No purchase request found for this manufacturer"); 
         require(
             recordedTemperature == product.temperature,
             "Temperature mismatch"
         );
 
         product.isSold = true;
-
-        // if (address(this).balance >= product.price) {
         payable(product.farmer).transfer(product.price);
-        // }
 
         uint256 index = productIdToIndex[_productId];
         allProducts[index].isSold = true;
-
-        // Clean up after success to save gas
-        delete purchaseRequests[_productId];
 
         emit PaymentReleased(_productId, product.farmer, product.price);
     }
@@ -259,11 +241,9 @@ contract SupplyChain {
     }
 
     /// @notice Fetch all product details for a specific product
-    function getProductDetails(uint256 _productId)
-        public
-        view
-        returns (Product memory)
-    {
+    function getProductDetails(
+        uint256 _productId
+    ) public view returns (Product memory) {
         return products[_productId];
     }
 
@@ -278,29 +258,23 @@ contract SupplyChain {
     }
 
     /// @notice Fetch processing details
-    function getProcessingDetails(uint256 _productId)
-        public
-        view
-        returns (Processing memory)
-    {
+    function getProcessingDetails(
+        uint256 _productId
+    ) public view returns (Processing memory) {
         return processedProducts[_productId];
     }
 
     /// @notice Fetch shipment details
-    function getShipmentDetails(uint256 _shipmentId)
-        public
-        view
-        returns (Shipment memory)
-    {
+    function getShipmentDetails(
+        uint256 _shipmentId
+    ) public view returns (Shipment memory) {
         return shipments[_shipmentId];
     }
 
     /// @notice Fetch inventory details
-    function getInventoryDetails(uint256 _inventoryId)
-        public
-        view
-        returns (Inventory memory)
-    {
+    function getInventoryDetails(
+        uint256 _inventoryId
+    ) public view returns (Inventory memory) {
         return inventories[_inventoryId];
     }
 
@@ -317,5 +291,7 @@ contract SupplyChain {
     function getContractBalance() public view returns (uint256) {
         return address(this).balance;
     }
-    // purchase request store informtion address of manufacturer who requested for the specific product
+    // purchase request store informtion address of manufacturer who requested for the specific product 
+
+
 }
