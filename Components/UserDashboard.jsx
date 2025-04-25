@@ -2,18 +2,23 @@ import Register from "./Auth"; // Auth Component
 import image from "../images/index"; // Import images
 import Image from 'next/image';
 
-export default ({ loading, isAuthenticated, walletAddress, shopName, handleConnectWallet, logout, user, role,setAddProductModal,setGetProductModal,setGetAllProductsModal,setRequestPurchaseModal,setConfirmDeliveryModal }) => {
+export default ({ loading, isAuthenticated, walletAddress, shopName, handleConnectWallet, logout, user, role,setAddProductModal,setGetProductModal,setGetSalesRequestModal,setGetSalesListModal,setGetAllProductsModal,setRequestPurchaseModal,setConfirmDeliveryModal,setPurchaseRequestListModal,setPurchaseListModal,setProcessProductModal,setProcessedProductModal }) => {
 
     const roleActions = {
         1: [
             { name: "Add Product", avatar: image.addProduct, action: () => setAddProductModal(true) },
             { name: "Get Product", avatar: image.getProduct, action: () => setGetProductModal(true) },
+            { name: "Sales Request", avatar: image.salesRequest, action: () => setGetSalesRequestModal(true) },
+            { name: "Sales List", avatar: image.salesList, action: () => setGetSalesListModal(true) },
         ],
         2: [
             { name: "View Products", avatar: image.viewProduct, action: () => setGetAllProductsModal(true) },
             { name: "Request Purchase", avatar: image.requestPurchase, action: () => setRequestPurchaseModal(true) },
+            { name: "Purchase Request List ", avatar: image.purchaseRequestList, action: () => setPurchaseRequestListModal(true) },
             { name: "Quality Check", avatar: image.paymentQualityCheck, action: () => setConfirmDeliveryModal(true) },
-            { name: "Process Product", avatar: image.processProduct, action: () => alert("Quality Check action") },
+            { name: "Purchase List", avatar: image.purchaseList, action: () => setPurchaseListModal(true) },
+            { name: "Process Product", avatar: image.processProduct, action: () => setProcessProductModal(true) },
+            { name: "Processed Product", avatar: image.processedProduct, action: () => setProcessedProductModal(true) },
         ],
         3: [
             { name: "Track Shipment", avatar: image.trackShipment, action: () => alert("Track Shipment action") },

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Str1 } from "../index.js";
+import {ethers} from 'ethers'
 
 export default ({
     getAllProductsModal,
@@ -7,8 +8,10 @@ export default ({
     getAllProducts,
 }) => {
     const [products, setProducts] = useState([]); // Handle array of products
-    const [productLength, setProductLength] = useState(0); // Handle array of products
+    // const [productLength, setProductLength] = useState(0); // Handle array of products
 
+
+    
     const viewAllProduct = async () => {
         try {
             const getData = await getAllProducts(); // Assuming smart contract returns an array
@@ -29,7 +32,7 @@ export default ({
 
             console.log("Parsed Products:", parsedProducts);
             setProducts(parsedProducts); // Set array of real objects now ✅
-            setProductLength(getData.length);
+            // setProductLength(getData.length);
         } catch (error) {
             console.error("Error fetching product details:", error);
         }
@@ -83,7 +86,7 @@ export default ({
 
                     <div className="text-center mb-4">
                         <h4 className="text-xl font-semibold text-gray-800">
-                            Available Products: {productLength}
+                            Available Products
                         </h4>
                         <button
                             onClick={viewAllProduct}
@@ -129,7 +132,7 @@ export default ({
                                         {product.temperature?.toString()} °C
                                     </p>
                                     <p>
-                                        <strong>Price:</strong> {product.price?.toString()}
+                                        <strong>Price:</strong> {ethers.formatEther(product.price?.toString())}
                                     </p>
                                     <p>
                                         <strong>Farmer:</strong> {product.farmer.slice(0, 25)}...

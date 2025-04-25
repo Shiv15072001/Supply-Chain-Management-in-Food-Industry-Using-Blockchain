@@ -5,9 +5,15 @@ import UserDashboard from './UserDashboard';
 import Navbar from './Navbar';
 import AddProduct from './Farmer/AddProduct';
 import GetProduct from './Farmer/GetProduct';
-import ViewProducts from './Manufacturer/ViewProducts'
+import SalesRequest from './Farmer/SalesRequest';
+import SalesList from './Farmer/SalesList';
+import ViewProducts from './Manufacturer/ViewProducts';
 import RequestPurchase from './Manufacturer/RequestPurchase';
 import PaymentQuality from './Manufacturer/PaymentQuality';
+import PurchaseRequestList from './Manufacturer/PurchaseRequestList';
+import PurchaseList from './Manufacturer/PurchaseList';
+import ProcessProduct from './Manufacturer/ProcessProduct';
+import ProcessedProduct from './Manufacturer/ProcessedProduct';
 import Str1 from './SVG/Str1';
 
 export {
@@ -19,9 +25,15 @@ export {
     UserDashboard,
     AddProduct,
     GetProduct,
+    SalesRequest,
+    SalesList,
     ViewProducts,
     RequestPurchase,
     PaymentQuality,
+    PurchaseRequestList,
+    PurchaseList,
+    ProcessProduct,
+    ProcessedProduct,
 }
 
 

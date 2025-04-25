@@ -7,8 +7,8 @@ import { Str1 } from '../index.js';
 //         startShipment={startShipment}
 export default ({ confirmDeliveryModal, setConfirmDeliveryModal, confirmDelivery }) => {
     const [temperature, setTemperature] = useState({
-        productId: "",
-        recordedtemp: "",
+        productId: 0,
+        recordedtemp: 0,
     });
     const [addedSuccessfully, setAddedSuccessfully] = useState(false);
     const [info,setInfo] =  useState("")

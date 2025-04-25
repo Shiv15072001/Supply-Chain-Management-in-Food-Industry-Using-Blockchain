@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 // import Web3Modal from "web3modal";
 import { ethers } from "ethers";
-
+import { auth, db } from "../lib/firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";  // Important!
 // Import Smart Contract ABI
 import supplyChainABI from "../conetxt/SupplyChain.json";
 
@@ -126,7 +128,7 @@ export const SupplyChainProvider = ({ children }) => {
                 farmingpractice,
                 certification,
                 temperature,
-                price
+                ethers.parseUnits(price.toString(),18)
             );
 
             const receipt = await tx.wait(); // Wait for transaction confirmation
@@ -229,17 +231,61 @@ export const SupplyChainProvider = ({ children }) => {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const contract = fetchContract(signer);
-    
             const product = await contract.getProductDetails(index);
             console.log("Product:", product);
-            
-            const price = ethers.parseUnits(product.price.toString(), 18)
-            console.log("Price:", price);
-            const tx = await contract.requestPurchase(index,{
-                value: price,
+    
+            // const price = ethers.parseUnits(product.price.toString(), 18);
+            // console.log("Price:", price);
+    
+            const tx = await contract.requestPurchase(index, {
+                value: product.price,
             });
-            await tx.wait();
-            console.log("✅ Purchase requested successfully!");
+    
+            const transactionHash = tx.hash; // ✅ Capture immediately
+            const receipt = await tx.wait();
+            console.log("✅ Purchase requested successfully!", transactionHash);
+    
+            const event = receipt.logs
+                .map(log => {
+                    try {
+                        return contract.interface.parseLog(log);
+                    } catch (e) {
+                        return null;
+                    }
+                })
+                .filter(log => log && log.name === "PurchaseRequested")[0];
+    
+            if (event) {
+                const productId = event.args.productId;
+                const manufacturer = event.args.manufacturer;
+                const amountPaid = event.args.amount;
+    
+                console.log("PurchaseRequested Event Data:");
+                console.log("Product ID:", productId.toString());
+                console.log("Manufacturer:", manufacturer);
+                console.log("Amount Paid:", amountPaid.toString());
+    
+                // Check Firebase Auth
+                const currentUser = getAuth().currentUser;
+                if (!currentUser) {
+                    throw new Error("User not authenticated in Firebase!");
+                }
+    
+                // Save to Firebase
+                await addDoc(collection(db, "purchaseRequests"), {
+                    productId: productId.toString(),
+                    manufacturer,
+                    amountPaid: amountPaid.toString(),
+                    farmer: product.farmer,
+                    timestamp: new Date().toISOString(),
+                    firebaseUID: currentUser.uid,
+                });
+    
+                console.log("✅ Purchase request stored in Firebase.");
+            } else {
+                console.warn("⚠️ PurchaseRequested event not found in logs.");
+                return "⚠️ Transaction succeeded but event not found.";
+            }
     
             return "✅ Purchase requested successfully!";
         } catch (error) {
@@ -250,10 +296,11 @@ export const SupplyChainProvider = ({ children }) => {
             } else if (error?.reason) {
                 return `⚠️ ${error.reason}`;
             }
-            return "❌ Unknown error occurred!";
+            return `❌ ${error.message || "Unknown error occurred!"}`;
         }
     };
     
+
 
     const confirmDelivery = async (items) => {
         try {
@@ -297,12 +344,60 @@ export const SupplyChainProvider = ({ children }) => {
             });
 
             console.log("Transaction sent, waiting...");
-            await tx.wait();
+            // await tx.wait();
+
+            // 
+            const receipt = await tx.wait(); // Wait for transaction confirmation
+    
+            const event = receipt.logs
+                .map(log => {
+                    try {
+                        return contract.interface.parseLog(log);
+                    } catch (e) {
+                        return null;
+                    }
+                })
+                .filter(log => log && log.name === "PaymentReleased")[0];
+    
+            if (event) {
+                const productId = event.args.productId;
+                const farmer = event.args.farmer;
+                const amountPaid = event.args.amount;
+    
+                console.log("PurchaseRequested Event Data:");
+                console.log("Product ID:", productId.toString());
+                console.log("farmer:", farmer);
+                console.log("Amount Paid:", amountPaid.toString());
+    
+                // Check Firebase Auth
+                const currentUser = getAuth().currentUser;
+                if (!currentUser) {
+                    throw new Error("User not authenticated in Firebase!");
+                }
+    
+                // Save to Firebase
+                await addDoc(collection(db, "paymentInfo"), {
+                    productId: productId.toString(),
+                    farmer,
+                    amountPaid: amountPaid.toString(),
+                    manufacturer: purchaser.toLowerCase(),
+                    timestamp: new Date().toISOString(),
+                    firebaseUID: currentUser.uid,
+                });
+    
+                console.log("✅ Payment Info stored in Firebase.");
+            } else {
+                console.warn("⚠️Payment Info event not found in logs.");
+                return "⚠️ Transaction succeeded but event not found.";
+            }
+
             console.log("✅ Delivery confirmed successfully!", tx.hash);
 
             return `✅ Delivery confirmed successfully!`;
+
+
         } catch (error) {
-            console.error("Error in confirmDelivery:", error);
+            // console.error("Error in confirmDelivery:", error);
 
             if (error?.shortMessage) {
                 return `❌ Smart contract error: ${error.shortMessage}`;
@@ -312,6 +407,68 @@ export const SupplyChainProvider = ({ children }) => {
         }
     };
 
+    // process product by manufacturer
+
+    const processProduct = async (items) => {
+        try {
+            const { productId, processingDate,methods,additives } = items;
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const contract = fetchContract(signer);
+            // new Date(harvestdate).getTime()
+            const tx = await contract.processProduct(productId, 
+                new Date(processingDate).getTime(), 
+                methods, 
+                additives, {
+                gasLimit: 300000,
+            });
+            await tx.wait(); // Wait for transaction confirmation
+            console.log("Transaction sent, waiting...");
+            console.log("Transaction Hash:", tx.hash);
+            return "Product Processed Successfully!";
+        }
+        catch (error) {
+            // console.error("Error in processProduct:", error);
+            return "⚠️ Unexpected error during product processing.";
+            
+        }
+    }
+
+        // Fetch all products added by the current logged-in farmer
+        const getProcessedProductDetails = async () => {
+            try {
+                const provider = new ethers.BrowserProvider(window.ethereum);
+                const signer = await provider.getSigner();
+                const contract = fetchContract(signer);
+    
+                // Get productIds processed by this manufacturer
+                const productIds = await contract.getMyProcessedProductIds();
+                console.log("Product IDs:", productIds);
+                const processedProducts = [];
+    
+                // 🔹 Step 2: Loop through each product ID and fetch its details
+                for (let i = 0; i < productIds.length; i++) {
+                    const product = await contract.getProcessingDetails(productIds[i]);
+    
+                    const processedProductDetail = {
+                        productId: product[0].toString(),
+                        processingDate: new Date(Number(product[1])),
+                        methods: product[2],
+                        additives : product[3],
+                    };
+    
+                    processedProducts.push(processedProductDetail);
+                }
+    
+                console.log("Processed Products:", processedProducts);
+                return processedProducts;
+    
+            } catch (error) {
+                console.error("Error fetching farmer's products:", error);
+                return [];
+            }
+        };
+    
 
 
 
@@ -383,6 +540,8 @@ export const SupplyChainProvider = ({ children }) => {
                 getAllProducts,
                 requestPurchase,
                 confirmDelivery,
+                processProduct,
+                getProcessedProductDetails,
             }}
         >
             {children}

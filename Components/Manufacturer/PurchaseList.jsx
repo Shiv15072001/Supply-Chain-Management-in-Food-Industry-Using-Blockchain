@@ -1,0 +1,80 @@
+import { useState, useEffect } from "react";
+import { Str1 } from "../index.js";
+import { fetchPurchaseListForManufacturer } from "@/utils/firebaseHelpers";
+import { ethers } from "ethers";
+
+
+export default ({
+    purchaseListModal,
+    setPurchaseListModal,
+    walletAddress
+}) => {
+    const [requests, setRequests] = useState([]);
+
+
+
+    const getPurchaseList = async () => {
+        const data = await fetchPurchaseListForManufacturer(walletAddress);
+        console.log(data)
+        setRequests(data);
+    }
+
+    const removeData = async () => {
+        setPurchaseListModal(false)
+        setRequests("")
+    }
+
+    return purchaseListModal ? (
+        <div className="fixed inset-0 z-10 overflow-y-auto">
+            <div
+                className="fixed inset-0 w-full h-full bg-black opacity-40"
+                onClick={() => removeData()}
+            />
+            <div className="flex items-center min-h-screen px-4 py-8">
+                <div className="relative w-full max-w-3xl p-6 mx-auto bg-white rounded-md shadow-lg">
+                    <div className="flex justify-end">
+                        <button
+                            className="p-2 text-gray-400 rounded-md hover:bg-gray-100"
+                            onClick={() => removeData()}
+                        >
+                            <Str1 />
+                        </button>
+                    </div>
+
+                    <div className="text-center mb-4">
+                        <h4 className="text-xl font-semibold text-gray-800">
+                            Purchase List:
+                        </h4>
+                        <button
+                            onClick={getPurchaseList}
+                            className="mt-4 py-2 px-4 font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg"
+                        >
+                            View Purchase
+                        </button>
+                    </div>
+
+                    <div>
+                        <h2 className="text-xl font-bold mb-4">My Purchase List</h2>
+                        {requests.length === 0 ? (
+                            <p>No purchase yet.</p>
+                        ) : (
+                            <ul className="space-y-4">
+                                {requests.map((req) => (
+                                    <li key={req.id} className="p-4 bg-gray-100 rounded shadow">
+                                        <p><strong>Product ID:</strong> {req.productId}</p>
+                                        <p><strong>Amount Paid:</strong> {ethers.formatEther(req.amountPaid)} ETH</p>
+                                        <p><strong>Manufacturer Adddress:</strong> {req.manufacturer}</p>
+                                        <p><strong>Farmer Adddress:</strong> {req.farmer}</p>
+                                        <p><strong>Time:</strong> {new Date(req.timestamp).toLocaleString()}</p>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+
+                    
+                </div>
+            </div>
+        </div>
+    ) : null;
+};

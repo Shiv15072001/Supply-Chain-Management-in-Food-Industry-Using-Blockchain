@@ -68,6 +68,10 @@ contract SupplyChain {
     // mapping(uint256 => address) public purchaseRequests; // productId => manufacturer address
     //  Store the manufacturer who requested purchase for each productId
     mapping(uint256 => address) public purchaseRequests;
+    // 
+    // Mapping from productId to manufacturer (already exists in your Processing struct)
+    mapping(address => uint256[]) private manufacturerToProcessedIds;
+
 
     uint256 public productCount;
     uint256 public shipmentCount;
@@ -151,11 +155,12 @@ contract SupplyChain {
 
     require(product.price > 0, "Product does not exist");
     require(!product.isSold, "Product already sold");
+    require(purchaseRequests[_productId] == address(0), "Product already requested by another manufacturer!");
     require(msg.value >= product.price, "Insufficient payment");
 
     purchaseRequests[_productId] = msg.sender;
 
-    emit PurchaseRequested(_productId, msg.sender, msg.value);
+    emit PurchaseRequested(_productId, msg.sender,msg.value);
 }
 
 
@@ -194,21 +199,25 @@ contract SupplyChain {
 
     /// @notice Manufacturer processes the product
     function processProduct(
-        uint256 _productId,
-        uint256 _processingDate,
-        string memory _methods,
-        string memory _additives
-    ) public onlyRole(Role.Manufacturer) {
-        require(products[_productId].isSold, "Product must be purchased first");
+    uint256 _productId,
+    uint256 _processingDate,
+    string memory _methods,
+    string memory _additives
+) public onlyRole(Role.Manufacturer) {
+    require(products[_productId].isSold, "Product must be purchased first");
 
-        processedProducts[_productId] = Processing({
-            productId: _productId,
-            processingDate: _processingDate,
-            methods: _methods,
-            additives: _additives,
-            manufacturer: msg.sender
-        });
-    }
+    processedProducts[_productId] = Processing({
+        productId: _productId,
+        processingDate: _processingDate,
+        methods: _methods,
+        additives: _additives,
+        manufacturer: msg.sender
+    });
+
+    // Track which product this manufacturer processed
+    manufacturerToProcessedIds[msg.sender].push(_productId);
+}
+
 
     /// @notice Supplier logs shipment details
     function createShipment(
@@ -278,13 +287,18 @@ contract SupplyChain {
     }
 
     /// @notice Fetch processing details
-    function getProcessingDetails(uint256 _productId)
-        public
-        view
-        returns (Processing memory)
-    {
-        return processedProducts[_productId];
-    }
+
+    function getMyProcessedProductIds() public view onlyRole(Role.Manufacturer) returns (uint256[] memory) {
+    return manufacturerToProcessedIds[msg.sender];
+}
+
+
+    function getProcessingDetails(uint256 _productId) public view returns (Processing memory) {
+    Processing memory info = processedProducts[_productId];
+    require(info.manufacturer == msg.sender, "Unauthorized access");
+    return info;
+}
+
 
     /// @notice Fetch shipment details
     function getShipmentDetails(uint256 _shipmentId)

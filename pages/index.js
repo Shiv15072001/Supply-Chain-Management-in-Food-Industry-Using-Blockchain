@@ -5,13 +5,13 @@ import { SupplyChainContext} from "../conetxt/SupplyChain"; // Import Web3 conte
 import { AuthContext } from "../conetxt/AuthContext"; // Import Firebase Auth Context
 import { getUserData } from "../lib/firebaseConfig"; // Import Firestore function
 // import Register from "../components/Auth"; // Auth Component
-import {UserDashboard, AddProduct,GetProduct,ViewProducts,RequestPurchase,PaymentQuality} from "../Components/index";
+import {UserDashboard, AddProduct,GetProduct,SalesRequest,SalesList,ViewProducts,RequestPurchase,PaymentQuality,PurchaseRequestList,PurchaseList,ProcessProduct,ProcessedProduct} from "../Components/index";
 
 const Index = () => {
 
 // USERS AUTHENTICATION CODE AND AFTER LOGIN CODE
     const { user, logout } = useContext(AuthContext); // Firebase user
-    const { connectWallet, currentUser, setCurrentUser,addProducts, getFarmerProductDetails,getAllProducts,requestPurchase,confirmDelivery } = useContext(SupplyChainContext); // Web3 User Context
+    const { connectWallet, currentUser, setCurrentUser,addProducts, getFarmerProductDetails,getAllProducts,requestPurchase,confirmDelivery,processProduct,getProcessedProductDetails } = useContext(SupplyChainContext); // Web3 User Context
 
     const [walletAddress, setWalletAddress] = useState(""); // Registered wallet address
     const [role, setRole] = useState(""); // Store role
@@ -22,11 +22,17 @@ const Index = () => {
     // USERS AUTHENTICATION CODE AND AFTER LOGIN CODE
     // MODALS OPENING BASED ON CLICK FOR FARMER
     const [addProductModal, setAddProductModal] = useState(false);
-    const [getProductModal, setGetProductModal] = useState(false)
+    const [getProductModal, setGetProductModal] = useState(false);
+    const [getSalesRequestModal, setGetSalesRequestModal] = useState(false);
+    const [getSalesListModal,setGetSalesListModal] = useState(false);  
     // MODALS OPENING BASED ON CLICK FOR MANUFACTURER
     const [getAllProductsModal, setGetAllProductsModal] = useState(false)
     const [requestPurchaseModal, setRequestPurchaseModal] = useState(false)
     const [confirmDeliveryModal, setConfirmDeliveryModal] = useState(false)
+    const [purchaseRequestListModal, setPurchaseRequestListModal] = useState(false)
+    const [purchaseListModal, setPurchaseListModal] = useState(false)
+    const [processProductModal, setProcessProductModal] = useState(false)
+    const [processedProductModal, setProcessedProductModal] = useState(false)
     
 
 
@@ -101,10 +107,17 @@ const Index = () => {
         role={role}
         setAddProductModal={setAddProductModal}
         setGetProductModal={setGetProductModal}
+        setGetSalesRequestModal={setGetSalesRequestModal}
+        setGetSalesListModal={setGetSalesListModal}
         setGetAllProductsModal={setGetAllProductsModal}
         setRequestPurchaseModal={setRequestPurchaseModal}
         setConfirmDeliveryModal={setConfirmDeliveryModal}
+        setPurchaseRequestListModal={setPurchaseRequestListModal}
+        setPurchaseListModal={setPurchaseListModal}
+        setProcessProductModal={setProcessProductModal}
+        setProcessedProductModal={setProcessedProductModal}
         />
+        {/* farmer start */}
         <AddProduct addProductModal={addProductModal} setAddProductModal={setAddProductModal}
         addProducts={addProducts}/>
 
@@ -112,6 +125,16 @@ const Index = () => {
         setGetProductModal={setGetProductModal}
         getFarmerProductDetails={getFarmerProductDetails}
         />
+        <SalesRequest getSalesRequestModal={getSalesRequestModal}
+        setGetSalesRequestModal={setGetSalesRequestModal}
+        walletAddress={walletAddress}
+        />
+        <SalesList getSalesListModal={getSalesListModal}
+        setGetSalesListModal={setGetSalesListModal}
+        walletAddress={walletAddress}
+        />
+        {/* farmer end */}
+        {/* manufacturer start */}
         <ViewProducts getAllProductsModal={getAllProductsModal}
         setGetAllProductsModal={setGetAllProductsModal}
         getAllProducts={getAllProducts}
@@ -119,11 +142,29 @@ const Index = () => {
         <RequestPurchase requestPurchaseModal={requestPurchaseModal}
         setRequestPurchaseModal={setRequestPurchaseModal}
         requestPurchase={requestPurchase}
+        
         />
         <PaymentQuality confirmDeliveryModal={confirmDeliveryModal}
         setConfirmDeliveryModal={setConfirmDeliveryModal}
         confirmDelivery={confirmDelivery}
         />
+        <PurchaseRequestList purchaseRequestListModal={purchaseRequestListModal}
+        setPurchaseRequestListModal={setPurchaseRequestListModal}
+        walletAddress={walletAddress}
+        />
+        <PurchaseList purchaseListModal={purchaseListModal}
+        setPurchaseListModal={setPurchaseListModal}
+        walletAddress={walletAddress}
+        />
+        <ProcessProduct processProductModal={processProductModal}
+        setProcessProductModal={setProcessProductModal}
+        processProduct={processProduct}
+        />
+        <ProcessedProduct processedProductModal={processedProductModal}
+        setProcessedProductModal={setProcessedProductModal}
+        getProcessedProductDetails={getProcessedProductDetails}
+        />
+        {/* manufacturer end */}
         </>
     );
     
