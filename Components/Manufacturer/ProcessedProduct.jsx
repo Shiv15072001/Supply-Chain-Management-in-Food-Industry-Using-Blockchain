@@ -10,6 +10,7 @@ export default ({ setProcessedProductModal, processedProductModal, getProcessedP
         try {
             const getData = await getProcessedProductDetails();
             setProcessedProducts(getData); // Set array
+            console.log(typeof(getData[0].productId))
             console.log(getData);
         } catch (error) {
             console.error("Error fetching product details:", error);
@@ -62,6 +63,15 @@ export default ({ setProcessedProductModal, processedProductModal, getProcessedP
                                     <p><strong>Processing Date:</strong> {converTime(product.processingDate)}</p>
                                     <p><strong>Methods:</strong> {product.methods}</p>
                                     <p><strong>Additives:</strong> {product.additives}</p>
+                                    <p><strong>Price:</strong> {ethers.formatEther(product.price)} ETH</p>
+                                    <p><strong>Manufacturer:</strong> {product.manufacturer} </p>
+                                    <p>
+                                        <strong>ShipmentStatus:</strong> {product.shipmentStatus == 0 ? "NOT APPROVED" : product.shipmentStatus == 1 ? "PENDING APPROVAL" : product.shipmentStatus == 2 ? "ACCEPTED":product.shipmentStatus == 3 ? "IN TRANSIT" : "DELIVERED"}
+                                    </p>
+                                    <p><strong>Supplier:</strong> {product.supplier} </p>
+                                    <p><strong>Retailer:</strong> {product.retailer} </p>
+                                    <p><strong>PickupTime:</strong> {product.pickupTime > 0 ? converTime(product.pickupTime) : "N/A"}</p>
+                                    <p><strong>DeliveryTime:</strong> {product.deliveryTime > 0 ? converTime(product.deliveryTime) : "N/A"}</p>
                                 </div>
                             ))}
                         </div>

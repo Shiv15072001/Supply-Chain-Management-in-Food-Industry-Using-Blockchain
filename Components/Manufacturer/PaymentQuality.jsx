@@ -14,6 +14,10 @@ export default ({ confirmDeliveryModal, setConfirmDeliveryModal, confirmDelivery
     const [info,setInfo] =  useState("")
 
     const getConfirmDelivery = async () => {
+        const { productId, recordedtemp } = temperature;
+        if (productId === 0 || recordedtemp === 0) {
+            return alert("Please fill in all the details!");
+        }
         try {
             const getData = await confirmDelivery(temperature); // Set array
             setInfo(getData)
@@ -23,8 +27,13 @@ export default ({ confirmDeliveryModal, setConfirmDeliveryModal, confirmDelivery
         }
     };
 
-    const removeInfoWhenCancel = () => {
+    const removeData = () => {
         setConfirmDeliveryModal(false)
+        setTemperature({ 
+            productId: 0,
+            recordedtemp: 0,
+        })
+        setInfo(""); 
         setAddedSuccessfully(false)
     }
 
@@ -32,12 +41,12 @@ export default ({ confirmDeliveryModal, setConfirmDeliveryModal, confirmDelivery
     return confirmDeliveryModal ? (
         <div className="fixed inset-0 z-10 overflow-y-auto">
             <div className="fixed inset-0 w-full h-full bg-black opacity-40"
-                onClick={() => removeInfoWhenCancel(false)}>
+                onClick={() => removeData()}>
             </div>
             <div className='flex items-center min-h-screen px-4 py-8'>
                 <div className='relative w-full max-w-lg p-4 mx-auto bg-white rounded-md shadow-lg'>
                     <div className='flex justify-end' >
-                        <button className='p-2 text-gray-400 rounded-md hover:bg-gray-100' onClick={() => removeInfoWhenCancel(false)}>
+                        <button className='p-2 text-gray-400 rounded-md hover:bg-gray-100' onClick={() => removeData()}>
                             <Str1 />
                         </button>
                     </div>

@@ -2,7 +2,7 @@ import Register from "./Auth"; // Auth Component
 import image from "../images/index"; // Import images
 import Image from 'next/image';
 
-export default ({ loading, isAuthenticated, walletAddress, shopName, handleConnectWallet, logout, user, role,setAddProductModal,setGetProductModal,setGetSalesRequestModal,setGetSalesListModal,setGetAllProductsModal,setRequestPurchaseModal,setConfirmDeliveryModal,setPurchaseRequestListModal,setPurchaseListModal,setProcessProductModal,setProcessedProductModal }) => {
+export default ({ loading, isAuthenticated, walletAddress, shopName, handleConnectWallet, logout, user, role,setAddProductModal,setGetProductModal,setGetSalesRequestModal,setGetSalesListModal,setGetAllProductsModal,setRequestPurchaseModal,setConfirmDeliveryModal,setPurchaseRequestListModal,setPurchaseListModal,setProcessProductModal,setProcessedProductModal,setApprovedShipmentModal,setGetAllProcessedProductModal,setRequestShipmentModal }) => {
 
     const roleActions = {
         1: [
@@ -19,10 +19,12 @@ export default ({ loading, isAuthenticated, walletAddress, shopName, handleConne
             { name: "Purchase List", avatar: image.purchaseList, action: () => setPurchaseListModal(true) },
             { name: "Process Product", avatar: image.processProduct, action: () => setProcessProductModal(true) },
             { name: "Processed Product", avatar: image.processedProduct, action: () => setProcessedProductModal(true) },
+            { name: "Approved Shipment", avatar: image.approvedShipment, action: () => setApprovedShipmentModal(true) },
         ],
         3: [
-            { name: "Track Shipment", avatar: image.trackShipment, action: () => alert("Track Shipment action") },
-            { name: "Update Status", avatar: image.updateStatus, action: () => alert("Update Status action") },
+            { name: "Available Shipments", avatar: image.availableShipment, action: () => setGetAllProcessedProductModal(true) },
+            { name: "Request Shipment", avatar: image.requestShipment, action: () => setRequestShipmentModal(true) },
+            { name: "Start Shipment", avatar: image.startShipment, action: () => alert("Update Status action") },
         ],
         4: [
             { name: "List Product", avatar: image.listProduct, action: () => alert("List Product action") },

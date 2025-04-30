@@ -3,25 +3,24 @@ import { Str1 } from '../index.js';
 
 
 
-export default ({ processProductModal, setProcessProductModal, processProduct }) => {
-    const [addProcessProduct, setAddProcessProduct] = useState({
+export default ({setApprovedShipmentModal, approvedShipmentModal,approvedShipment }) => {
+    const [addShipmentDetails, setAddShipmentDetails] = useState({
         productId: "",
-        processingDate: "",
-        methods: "",
-        additives: "",
-        price : ""
+        retailer: "",
+        pickupDate: "",
+        deliveryDate: "",
     })
 
 
     const [addedSuccessfully, setAddedSuccessfully] = useState(false);
     const [info, setInfo] = useState("");
-    const addProcessingProductToBlock = async () => {
-        const {productId, processingDate, methods, additives } = addProcessProduct;
-        if (String(productId).trim() === "" || String(methods).trim() === "" || String(additives).trim() === "" || String(processingDate).trim() === "" || String(processingDate).trim() === ""){
+    const addShipmentProductToBlock = async () => {
+        const {productId, retailer,pickupDate, deliveryDate } = addShipmentDetails;
+        if (String(productId).trim() === "" || String(retailer).trim() === "" || String(pickupDate).trim() === "" || String(deliveryDate).trim() === "" ){
             return alert("Please fill in all the details!");
         }
         try {
-            const show_log = await processProduct(addProcessProduct);
+            const show_log = await approvedShipment(addShipmentDetails);
             setInfo(show_log);
             setAddedSuccessfully(true);
         }
@@ -31,13 +30,12 @@ export default ({ processProductModal, setProcessProductModal, processProduct })
     }
 
     const removeData = async () => {
-        setProcessProductModal(false);
-        setAddProcessProduct({
-            productId: "",
-            processingDate: "",
-            methods: "",
-            additives: "",
-            price : ""
+        setApprovedShipmentModal(false);
+        setAddShipmentDetails({
+        productId: "",
+        retailer: "",
+        pickupDate: "",
+        deliveryDate: "",
         });
         setInfo("");  // Optional: reset info
         setAddedSuccessfully(false);  // Optional: reset success flag
@@ -48,13 +46,13 @@ export default ({ processProductModal, setProcessProductModal, processProduct })
         if (addedSuccessfully) {
             const timer = setTimeout(() => {
                 setAddedSuccessfully(false);
-                setProcessProductModal(false);
+                setApprovedShipmentModal(false);
             }, 10000); // Hide after 10 seconds
             return () => clearTimeout(timer);
         }
     }, [addedSuccessfully]);
 
-    return processProductModal ? (
+    return approvedShipmentModal ? (
         <div className="fixed inset-0 z-10 overflow-y-auto">
             <div className="fixed inset-0 w-full h-full bg-black opacity-40"
                 onClick={() => removeData()}>
@@ -67,7 +65,7 @@ export default ({ processProductModal, setProcessProductModal, processProduct })
                         </button>
                     </div>
                     <div className="max-w-sm mx-auto py-3 space-y-3 text-center">
-                        <h4 className="text-lg font-medium text-gray-800">Complete The Process Product</h4>
+                        <h4 className="text-lg font-medium text-gray-800">Complete the Shipment Details</h4>
                         <form onSubmit={(e) => e.preventDefault()}>
                             <div className="relative mt-3">
                                 <input
@@ -75,64 +73,55 @@ export default ({ processProductModal, setProcessProductModal, processProduct })
                                     placeholder="productId"
                                     min={1}
                                     className="w-full pl-5 pr-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
-                                    onChange={(e) => setAddProcessProduct({
-                                        ...addProcessProduct,
+                                    onChange={(e) => setAddShipmentDetails({
+                                        ...addShipmentDetails,
                                         productId: e.target.value,
                                     })}
                                 />
                             </div>
                             <div className='relative mt-3'>
                                 <input
+                                    type="text"
+                                    placeholder="retailer"
+
+                                    className="w-full pl-5 pr-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
+                                    onChange={(e) => setAddShipmentDetails({
+                                        ...addShipmentDetails,
+                                        retailer: e.target.value,
+                                    })}
+                                />
+                            </div>
+                            <div className='relative mt-3'>
+                                <input
                                     type="date"
-                                    placeholder="processingDate"
+                                    placeholder="pickupDate"
 
                                     className="w-full pl-5 pr-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
-                                    onChange={(e) => setAddProcessProduct({
-                                        ...addProcessProduct,
-                                        processingDate: e.target.value,
+                                    onChange={(e) => setAddShipmentDetails({
+                                        ...addShipmentDetails,
+                                        pickupDate: e.target.value,
                                     })}
                                 />
                             </div>
+                            
                             <div className='relative mt-3'>
                                 <input
-                                    type="text"
-                                    placeholder="methods"
+                                    type="date"
+                                    placeholder="deliveryDate"
 
                                     className="w-full pl-5 pr-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
-                                    onChange={(e) => setAddProcessProduct({
-                                        ...addProcessProduct,
-                                        methods: e.target.value,
+                                    onChange={(e) => setAddShipmentDetails({
+                                        ...addShipmentDetails,
+                                        deliveryDate: e.target.value,
                                     })}
                                 />
                             </div>
-                            <div className='relative mt-3'>
-                                <input
-                                    type="text"
-                                    placeholder="additives"
-                                    className="w-full pl-5 pr-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
-                                    onChange={(e) => setAddProcessProduct({
-                                        ...addProcessProduct,
-                                        additives: e.target.value,
-                                    })}
-                                />
-                            </div>
-                            <div className='relative mt-3'>
-                                <input
-                                    type="number"
-                                    placeholder="price"
-                                    min={1}
-                                    className="w-full pl-5 pr-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
-                                    onChange={(e) => setAddProcessProduct({
-                                        ...addProcessProduct,
-                                        price: e.target.value,
-                                    })}
-                                />
-                            </div>
+                            
 
 
 
-                            <button onClick={() => addProcessingProductToBlock()} className='block w-full mt-3 py-3 px-4 font-medium text-sm text-center text-white bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-lg ring-offset-2 ring-indigo-600 focus:ring-2'>
-                                Add Processing Product
+                            <button onClick={() => addShipmentProductToBlock()} className='block w-full mt-3 py-3 px-4 font-medium text-sm text-center text-white bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-lg ring-offset-2 ring-indigo-600 focus:ring-2'>
+                                Add Shipment Details
                             </button>
                         </form>
 

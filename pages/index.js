@@ -5,13 +5,13 @@ import { SupplyChainContext} from "../conetxt/SupplyChain"; // Import Web3 conte
 import { AuthContext } from "../conetxt/AuthContext"; // Import Firebase Auth Context
 import { getUserData } from "../lib/firebaseConfig"; // Import Firestore function
 // import Register from "../components/Auth"; // Auth Component
-import {UserDashboard, AddProduct,GetProduct,SalesRequest,SalesList,ViewProducts,RequestPurchase,PaymentQuality,PurchaseRequestList,PurchaseList,ProcessProduct,ProcessedProduct} from "../Components/index";
+import {UserDashboard, AddProduct,GetProduct,SalesRequest,SalesList,ViewProducts,RequestPurchase,PaymentQuality,PurchaseRequestList,PurchaseList,ProcessProduct,ProcessedProduct,ApprovedShipment,AvailableShipment,RequestShipment} from "../Components/index";
 
 const Index = () => {
 
 // USERS AUTHENTICATION CODE AND AFTER LOGIN CODE
     const { user, logout } = useContext(AuthContext); // Firebase user
-    const { connectWallet, currentUser, setCurrentUser,addProducts, getFarmerProductDetails,getAllProducts,requestPurchase,confirmDelivery,processProduct,getProcessedProductDetails } = useContext(SupplyChainContext); // Web3 User Context
+    const { connectWallet, currentUser, setCurrentUser,addProducts, getFarmerProductDetails,getAllProducts,requestPurchase,confirmDelivery,processProduct,getProcessedProductDetails,approvedShipment,getAllProcessedProducts,requestShipment } = useContext(SupplyChainContext); // Web3 User Context
 
     const [walletAddress, setWalletAddress] = useState(""); // Registered wallet address
     const [role, setRole] = useState(""); // Store role
@@ -33,6 +33,11 @@ const Index = () => {
     const [purchaseListModal, setPurchaseListModal] = useState(false)
     const [processProductModal, setProcessProductModal] = useState(false)
     const [processedProductModal, setProcessedProductModal] = useState(false)
+    const [approvedShipmentModal, setApprovedShipmentModal] = useState(false)
+    // MODALS OPENING BASED ON CLICK FOR SUPPLIER
+
+    const [getAllProcessedProductModal, setGetAllProcessedProductModal] = useState(false)
+    const [requestShipmentModal, setRequestShipmentModal] = useState(false)
     
 
 
@@ -105,10 +110,12 @@ const Index = () => {
         logout={logout}
         user={user}
         role={role}
+        //Farmer
         setAddProductModal={setAddProductModal}
         setGetProductModal={setGetProductModal}
         setGetSalesRequestModal={setGetSalesRequestModal}
         setGetSalesListModal={setGetSalesListModal}
+        // Manufacturer
         setGetAllProductsModal={setGetAllProductsModal}
         setRequestPurchaseModal={setRequestPurchaseModal}
         setConfirmDeliveryModal={setConfirmDeliveryModal}
@@ -116,6 +123,10 @@ const Index = () => {
         setPurchaseListModal={setPurchaseListModal}
         setProcessProductModal={setProcessProductModal}
         setProcessedProductModal={setProcessedProductModal}
+        setApprovedShipmentModal={setApprovedShipmentModal}
+        // Supplier
+        setGetAllProcessedProductModal={setGetAllProcessedProductModal}
+        setRequestShipmentModal={setRequestShipmentModal}
         />
         {/* farmer start */}
         <AddProduct addProductModal={addProductModal} setAddProductModal={setAddProductModal}
@@ -164,7 +175,22 @@ const Index = () => {
         setProcessedProductModal={setProcessedProductModal}
         getProcessedProductDetails={getProcessedProductDetails}
         />
+        <ApprovedShipment approvedShipmentModal={approvedShipmentModal}
+        setApprovedShipmentModal={setApprovedShipmentModal}
+        approvedShipment={approvedShipment}
+        />
         {/* manufacturer end */}
+        {/* Supplier */}
+        <AvailableShipment
+        getAllProcessedProductModal={getAllProcessedProductModal}
+        setGetAllProcessedProductModal={setGetAllProcessedProductModal}
+        getAllProcessedProducts={getAllProcessedProducts}
+        />
+        <RequestShipment
+        requestShipmentModal={requestShipmentModal}
+        setRequestShipmentModal={setRequestShipmentModal}
+        requestShipment={requestShipment}
+        />
         </>
     );
     

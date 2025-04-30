@@ -2,17 +2,17 @@
 import { useState,useEffect } from 'react'
 import { Str1 } from '../index.js';
 
-export default ({ requestPurchaseModal, setRequestPurchaseModal, requestPurchase }) => {
+export default ({ requestShipmentModal,setRequestShipmentModal, requestShipment }) => {
     const [index, setIndex] = useState(0);
     const [addedSuccessfully, setAddedSuccessfully] = useState(false);
     const [info,setInfo] =  useState("")
 
-    const getRequestPurchase = async () => {
+    const getRequestShipment = async () => {
         if (index === 0) {
             return alert("Please fill in all the details!");
         }
         try {
-            const getData = await requestPurchase(index); // Set array
+            const getData = await requestShipment(index); // Set array
             console.log(getData);
             setInfo(getData);
             setAddedSuccessfully(true);
@@ -22,7 +22,7 @@ export default ({ requestPurchaseModal, setRequestPurchaseModal, requestPurchase
     };
 
     const removeData = () => {
-        setRequestPurchaseModal(false);
+        setRequestShipmentModal(false);
         setIndex(0); // Reset index to 0
         setInfo("");  // Optional: reset info
         setAddedSuccessfully(false);  // Optional: reset success flag
@@ -39,7 +39,7 @@ export default ({ requestPurchaseModal, setRequestPurchaseModal, requestPurchase
     }, [addedSuccessfully]);
 
 
-    return requestPurchaseModal ? (
+    return requestShipmentModal ? (
         <div className="fixed inset-0 z-10 overflow-y-auto">
             <div className='fixed inset-0 w-full h-full bg-black opacity-40' onClick={() => removeData()}>
             </div>
@@ -57,8 +57,8 @@ export default ({ requestPurchaseModal, setRequestPurchaseModal, requestPurchase
                             <input type="number" placeholder="Product ID" className='w-full pl-5 pr-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg' min={1} onChange={(e) => setIndex(e.target.value)} />
                         </div>
 
-                        <button onClick={() => getRequestPurchase()} className='block w-full mt-3 py-3 px-4 font-medium text-sm text-center text-white bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-lg ring-offset-2 ring-indigo-600 focus:ring-2'>
-                            Request Purchase
+                        <button onClick={() => getRequestShipment()} className='block w-full mt-3 py-3 px-4 font-medium text-sm text-center text-white bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-lg ring-offset-2 ring-indigo-600 focus:ring-2'>
+                            Request Shipment
                         </button>
                     </form>
 

@@ -5,14 +5,22 @@ import { auth, db } from "../lib/firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";  // Important!
 // Import Smart Contract ABI
-import supplyChainABI from "../conetxt/SupplyChain.json";
+import { CONTRACT_ADDRESS } from "../frontend/constants/contractAddress";
+import supplyChainArtifact from "../frontend/constants/SupplyChain.json";
 
-// Smart Contract Address (Replace with deployed contract address)
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+
+// // Smart Contract Address (Replace with deployed contract address)
+// import supplyChainABI from "../conetxt/SupplyChain.json";
+// const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 // Fetch Smart Contract
 const fetchContract = (signerOrProvider) =>
-    new ethers.Contract(CONTRACT_ADDRESS, supplyChainABI.abi, signerOrProvider);
+    new ethers.Contract(CONTRACT_ADDRESS, supplyChainArtifact.abi, signerOrProvider);
+
+// Fetch Smart Contract
+// const fetchContract = (signerOrProvider) =>
+//     new ethers.Contract(CONTRACT_ADDRESS, supplyChainABI.abi, signerOrProvider);
+
 
 // Create Context
 // export const SupplyChainContext = createContext();
@@ -234,9 +242,6 @@ export const SupplyChainProvider = ({ children }) => {
             const product = await contract.getProductDetails(index);
             console.log("Product:", product);
     
-            // const price = ethers.parseUnits(product.price.toString(), 18);
-            // console.log("Price:", price);
-    
             const tx = await contract.requestPurchase(index, {
                 value: product.price,
             });
@@ -310,8 +315,8 @@ export const SupplyChainProvider = ({ children }) => {
             const contract = fetchContract(signer);
 
             console.log("Contract Address:", contract.target);
-            const balance = await contract.getContractBalance();
-            console.log("Contract Balance:", balance.toString());
+            // const balance = await contract.getContractBalance();
+            // console.log("Contract Balance:", balance.toString());
 
             const product = await contract.getProductDetails(productId);
             console.log("Fetched product details:", product);
@@ -409,32 +414,41 @@ export const SupplyChainProvider = ({ children }) => {
 
     // process product by manufacturer
 
+    
+
     const processProduct = async (items) => {
         try {
-            const { productId, processingDate,methods,additives } = items;
+            const { productId, processingDate, methods, additives,price } = items;
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const contract = fetchContract(signer);
-            // new Date(harvestdate).getTime()
-            const tx = await contract.processProduct(productId, 
-                new Date(processingDate).getTime(), 
-                methods, 
-                additives, {
-                gasLimit: 300000,
-            });
-            await tx.wait(); // Wait for transaction confirmation
-            console.log("Transaction sent, waiting...");
-            console.log("Transaction Hash:", tx.hash);
-            return "Product Processed Successfully!";
-        }
-        catch (error) {
-            // console.error("Error in processProduct:", error);
-            return "⚠️ Unexpected error during product processing.";
+    
+            // ✅ 2. If not processed yet, send transaction
+            const tx = await contract.processProduct(
+                productId,
+                new Date(processingDate).getTime(),
+                methods,
+                additives,
+                ethers.parseUnits(price.toString(),18),
+            );
+    
+            await tx.wait();
+            console.log("✅ Product processed successfully! Tx Hash:", tx.hash);
+            return "✅ Product processed successfully!";
+        } catch (error) {
             
+        if (error?.shortMessage) {
+            return `⚠️ ${error.shortMessage}`;
+        } else if (error?.reason) {
+            return `⚠️ ${error.reason}`;
         }
+        return `❌ ${error.message || "Unknown error occurred!"}`;
     }
+    };
+    
+    
 
-        // Fetch all products added by the current logged-in farmer
+        // Fetch all products proceesed by the current logged-in Manufacturer
         const getProcessedProductDetails = async () => {
             try {
                 const provider = new ethers.BrowserProvider(window.ethereum);
@@ -455,6 +469,13 @@ export const SupplyChainProvider = ({ children }) => {
                         processingDate: new Date(Number(product[1])),
                         methods: product[2],
                         additives : product[3],
+                        price : product[4],
+                        manufacturer : product[5],
+                        shipmentStatus : product[6],
+                        supplier : product[7],
+                        retailer : product[8],
+                        pickupTime : product[9],
+                        deliveryTime : product[10],
                     };
     
                     processedProducts.push(processedProductDetail);
@@ -468,8 +489,92 @@ export const SupplyChainProvider = ({ children }) => {
                 return [];
             }
         };
+
+        // Manufacturer approved for the Shipment 
+        const approvedShipment = async (items) => {
+            const {productId, retailer,pickupDate, deliveryDate } = items
+            try{
+                const provider = new ethers.BrowserProvider(window.ethereum);
+                const signer = await provider.getSigner();
+                const contract = fetchContract(signer)
+
+                const tx = await contract.acceptSupplier(
+                    productId,
+                    retailer,
+                    new Date(pickupDate).getTime(),
+                    new Date(deliveryDate).getTime()
+                );
+
+                await tx.wait();
+                console.log("Shipment approved successfully!", tx.hash);
+                return "Shipment approved successfully!";
+            }
+            catch(error){
+                if (error?.shortMessage) {
+                    return `⚠️ ${error.shortMessage}`;
+                } else if (error?.reason) {
+                    return `⚠️ ${error.reason}`;
+                }
+                return `❌ ${error.message || "Unknown error occurred!"}`;
+            }
+        }
+    
+    // Supplier can view products of all final product Processed by Manufacturer
+    const getAllProcessedProducts = async () => {
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const contract = fetchContract(signer);
+    
+            // Step 1: Get all processed product IDs
+            const processedProductIds = await contract.getAllProcessedProductIds();
+    
+            // Step 2: Loop and fetch full processing details
+            const processedProducts = await Promise.all(
+                processedProductIds.map(async (id) => {
+                    const details = await contract.getProcessingDetails(id);
+                    return {
+                        productId: id.toString(),
+                        ...details
+                    };
+                })
+            );
+    
+            console.log("Processed Products:", processedProducts);
+            return processedProducts;
+    
+        } catch (error) {
+            console.error("❌ Error fetching processed products for supplier:", error);
+            return [];
+        }
+    };
     
 
+    // Supplier can request for product
+    const requestShipment = async (index) => {
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const contract = fetchContract(signer);
+    
+            const tx = await contract.requestToShip(index);
+    
+            // const transactionHash = tx.hash; // ✅ Capture immediately
+            await tx.wait();
+            console.log("✅ Shipment requested successfully!", tx);
+            return "✅ Shipment requested successfully!";
+        } catch (error) {
+            // console.error("❌ Error in requestPurchase:", error);
+    
+            if (error?.shortMessage) {
+                return `⚠️ ${error.shortMessage}`;
+            } else if (error?.reason) {
+                return `⚠️ ${error.reason}`;
+            }
+            return `❌ ${error.message || "Unknown error occurred!"}`;
+        }
+    };
+    
 
 
     //**Fetch User Role**
@@ -490,6 +595,8 @@ export const SupplyChainProvider = ({ children }) => {
             console.error("Error fetching user role:", error);
         }
     };
+
+
 
     useEffect(() => {
         // connectWallet();
@@ -542,6 +649,10 @@ export const SupplyChainProvider = ({ children }) => {
                 confirmDelivery,
                 processProduct,
                 getProcessedProductDetails,
+                approvedShipment,
+                // supplier
+                getAllProcessedProducts,
+                requestShipment,
             }}
         >
             {children}

@@ -19,6 +19,10 @@ export default ({ setAddProductModal,addProductModal,addProducts
     const [addedSuccessfully, setAddedSuccessfully] = useState(false);
     const [productId, setProductId] = useState(null);
     const addProductToBlock = async () => {
+        const {croptype, harvestdate, location, farmingpractice, certification, temperature, price } = addProduct;
+        if (String(croptype).trim() === "" || String(harvestdate).trim() === "" || String(location).trim() === "" || String(farmingpractice).trim() === "" || String(certification).trim() === "" || String(temperature).trim() === "" || String(price).trim() === "") {
+            return alert("Please fill in all the details!");
+        }
         try{
             const p_id = await addProducts(addProduct);
             setProductId(p_id);
@@ -28,6 +32,27 @@ export default ({ setAddProductModal,addProductModal,addProducts
             console.log("Getting error while adding product")
         }
     }
+
+    const removeData = () => {
+        setAddProductModal(false);
+        setAddedSuccessfully(false); 
+    }
+
+    useEffect(() => {
+        if (addProductModal) {
+            setAddProduct({
+                croptype: "",
+                harvestdate: "",
+                location: "",
+                farmingpractice: "",
+                certification: "",
+                temperature: "",
+                price: ""
+            });
+            setAddedSuccessfully(false);
+            setProductId(null);
+        }
+    }, [addProductModal]);
 
     useEffect(() => {
         if (addedSuccessfully) {
@@ -42,12 +67,12 @@ export default ({ setAddProductModal,addProductModal,addProducts
     return addProductModal ? (
         <div className="fixed inset-0 z-10 overflow-y-auto">
             <div className="fixed inset-0 w-full h-full bg-black opacity-40"
-                onClick={() => setAddProductModal(false)}>
+                onClick={() => removeData()}>
             </div>
             <div className='flex items-center min-h-screen px-4 py-8'>
                 <div className='relative w-full max-w-lg p-4 mx-auto bg-white rounded-md shadow-lg'>
                     <div className='flex justify-end' >
-                        <button className='p-2 text-gray-400 rounded-md hover:bg-gray-100' onClick={() => setAddProductModal(false)}>
+                        <button className='p-2 text-gray-400 rounded-md hover:bg-gray-100' onClick={() => removeData()}>
                             <Str1 />
                         </button>
                     </div>
