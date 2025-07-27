@@ -5,6 +5,8 @@ import "./base/SupplyBase.sol";
 
 contract SupplierModule is SupplyBase {
 
+
+
     function requestToShip(uint256 _productId) public onlyRole(Role.Supplier) {
         Processing storage proc = processedProducts[_productId];
         require(proc.shipmentStatus == Stage.NOT_ACCEPTED, "Already requested");
@@ -12,12 +14,11 @@ contract SupplierModule is SupplyBase {
         proc.shipmentStatus = Stage.PENDING_APPROVAL;
     }
 
-    function startShipment(uint256 _productId, address _retailer) public onlyRole(Role.Supplier) {
+    function startShipment(uint256 _productId) public onlyRole(Role.Supplier) {
         Processing storage proc = processedProducts[_productId];
         require(proc.supplier == msg.sender, "Unauthorized");
         require(proc.shipmentStatus == Stage.ACCEPTED, "Not accepted yet");
 
-        proc.retailer = _retailer;
         proc.pickupTime = block.timestamp;
         proc.shipmentStatus = Stage.IN_TRANSIT;
     }
@@ -26,3 +27,4 @@ contract SupplierModule is SupplyBase {
     return allProcessedProductIds;
 }
 }
+

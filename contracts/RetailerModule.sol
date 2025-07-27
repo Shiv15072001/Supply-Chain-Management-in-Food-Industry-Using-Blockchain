@@ -5,6 +5,17 @@ import "./base/SupplyBase.sol";
 
 contract RetailerModule is SupplyBase {
 
+    /// @notice Fetch processing details
+
+    function getRetailerProcessedProductIds()
+        public
+        view
+        onlyRole(Role.Retailer)
+        returns (uint256[] memory)
+    {
+        return retailerToProcessedIds[msg.sender];
+    }
+
     function completeShipment(uint256 _productId) public onlyRole(Role.Retailer) {
         Processing storage proc = processedProducts[_productId];
         require(proc.retailer == msg.sender, "Unauthorized");
@@ -28,7 +39,7 @@ contract RetailerModule is SupplyBase {
             storageConditions: _storageConditions,
             retailer: msg.sender
         });
-
+        retailerToInventoryIds[msg.sender].push(inventoryCount);
         emit InventoryLogged(_productId, msg.sender);
     }
 }

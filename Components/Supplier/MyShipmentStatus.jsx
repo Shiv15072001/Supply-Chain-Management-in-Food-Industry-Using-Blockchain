@@ -3,35 +3,34 @@ import { Str1 } from "../index.js";
 import { ethers } from "ethers";
 
 export default ({
-    getAllProcessedProductModal,
-    setGetAllProcessedProductModal,
-    getAllProcessedProducts,
+    myShipmentStatusModal,
+    setMyShipmentStatusModal,
+    getMyShipmentStatus,
 }) => {
     const [products, setProducts] = useState([]); // Handle array of products
     // const [productLength, setProductLength] = useState(0); // Handle array of products
 
-    const viewAllProcessedProduct = async () => {
+    const viewMyShipmentStatus = async () => {
         try {
-            const getData = await getAllProcessedProducts(); // Assuming smart contract returns an array
+            const getData = await getMyShipmentStatus(); // Assuming smart contract returns an array
             console.log("Received raw data:", getData);
 
             const parsedProducts = getData.map((product) => ({
-                id: product[0].toString(),
-                processedDate: new Date(Number(product[1])),
-                methods: product[2],
-                additives: product[3],
-                price: product[4],
-                manufacturer: product[5],
-                shipmentStatus: Number(product[6]),
-                supplier: product[7],
-                retailer: product[8],
-                pickupTime: Number(product[9]),
-                deliveryTime: Number(product[10]),
+                id: product.productId,
+                processedDate: new Date(Number(product.processingDate)),
+                methods: product.methods,
+                additives: product.additives,
+                price: product.price,
+                manufacturer: product.manufacturer,
+                shipmentStatus: Number(product.shipmentStatus),
+                supplier: product.supplier,
+                retailer: product.retailer,
+                pickupTime: Number(product.pickupTime),
+                deliveryTime: Number(product.deliveryTime),
             }));
-
-
-            console.log("Parsed Products:", parsedProducts);
-            setProducts(parsedProducts); // Set array of real objects now ✅
+            
+            setProducts(parsedProducts);
+            console.log("Parsed Products:", parsedProducts);            
             // setProductLength(getData.length);
         } catch (error) {
             console.error("Error fetching product details:", error);
@@ -39,7 +38,7 @@ export default ({
     };
 
     const removeProduct = () => {
-        setGetAllProcessedProductModal(false);
+        setMyShipmentStatusModal(false);
         setProducts([]);
     };
 
@@ -52,7 +51,7 @@ export default ({
         }).format(newTime);
     };
 
-    return getAllProcessedProductModal ? (
+    return myShipmentStatusModal ? (
         <div className="fixed inset-0 z-10 overflow-y-auto">
             <div
                 className="fixed inset-0 w-full h-full bg-black opacity-40"
@@ -71,10 +70,10 @@ export default ({
 
                     <div className="text-center mb-4">
                         <h4 className="text-xl font-semibold text-gray-800">
-                            Available Shipments
+                            My Shipments Status
                         </h4>
                         <button
-                            onClick={viewAllProcessedProduct}
+                            onClick={viewMyShipmentStatus}
                             className="mt-4 py-2 px-4 font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg"
                         >
                             View
@@ -83,7 +82,7 @@ export default ({
 
                     {products.length === 0 ? (
                         <div className="text-center text-gray-600">
-                            No Available Shipment Found or Not fetched yet.
+                            No shipment found or Not fetched yet.
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 gap-4">

@@ -2,7 +2,7 @@ import Register from "./Auth"; // Auth Component
 import image from "../images/index"; // Import images
 import Image from 'next/image';
 
-export default ({ loading, isAuthenticated, walletAddress, shopName, handleConnectWallet, logout, user, role,setAddProductModal,setGetProductModal,setGetSalesRequestModal,setGetSalesListModal,setGetAllProductsModal,setRequestPurchaseModal,setConfirmDeliveryModal,setPurchaseRequestListModal,setPurchaseListModal,setProcessProductModal,setProcessedProductModal,setApprovedShipmentModal,setGetAllProcessedProductModal,setRequestShipmentModal }) => {
+export default ({ loading, isAuthenticated, walletAddress, shopName, handleConnectWallet, logout, user, role,setAddProductModal,setGetProductModal,setGetSalesRequestModal,setGetSalesListModal,setGetAllProductsModal,setRequestPurchaseModal,setConfirmDeliveryModal,setPurchaseRequestListModal,setPurchaseListModal,setProcessProductModal,setProcessedProductModal,setApprovedShipmentModal,setGetAllProcessedProductModal,setRequestShipmentModal,setMyShipmentStatusModal,setStartShipmentModal ,setGetAcceptedProductDetailsModal, setGetRetailerProductModal,setCompleteShipmentModal,setGetFinalProductModal,setAddInventoryModal,setViewInventoryModal}) => {
 
     const roleActions = {
         1: [
@@ -24,11 +24,16 @@ export default ({ loading, isAuthenticated, walletAddress, shopName, handleConne
         3: [
             { name: "Available Shipments", avatar: image.availableShipment, action: () => setGetAllProcessedProductModal(true) },
             { name: "Request Shipment", avatar: image.requestShipment, action: () => setRequestShipmentModal(true) },
-            { name: "Start Shipment", avatar: image.startShipment, action: () => alert("Update Status action") },
+            { name: "My Shipments Status", avatar: image.myshipemntStatus, action: () => setMyShipmentStatusModal(true) },
+            { name: "Start Shipment", avatar: image.startShipment, action: () => setStartShipmentModal(true) },
         ],
         4: [
-            { name: "List Product", avatar: image.listProduct, action: () => alert("List Product action") },
-            { name: "Manage Inventory", avatar: image.inventory, action: () => alert("Manage Inventory action") },
+            { name: "Retailer Shipments", avatar: image.retailerShipments, action: () => setGetAcceptedProductDetailsModal(true)},
+            { name: "In Transit Shipments", avatar: image.intransit, action: () => setGetRetailerProductModal(true) },
+            { name: "Complete Shipment", avatar: image.completeshipment, action: () => setCompleteShipmentModal(true) },
+            { name: "Final Products", avatar: image.finalProduct, action: () => setGetFinalProductModal(true) },
+            { name: "Add Inventory", avatar: image.addInventory, action: () => setAddInventoryModal(true) },
+            { name: "View Inventory", avatar: image.viewInventory, action: () => setViewInventoryModal(true) },
         ],
         5: [
             { name: "Scan Product", avatar: image.scanProduct, action: () => alert("Scan Product action") },

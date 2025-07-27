@@ -20,7 +20,17 @@ import ApprovedShipment from './Manufacturer/ApprovedShipment';
 //Supplier
 import AvailableShipment from './Supplier/AvailableShipment'
 import RequestShipment from './Supplier/RequestShipment'
+import MyShipmentStatus from './Supplier/MyShipmentStatus'
+import StartShipment from './Supplier/StartShipment';
+// Retailer
+import AcceptedShipments from './Retailer/AcceptedShipments';
+import InTransitShipments from './Retailer/InTransitShipments';
+import CompleteShipment from './Retailer/CompleteShipment'
+import FinalProducts from './Retailer/FinalProducts';
+import AddInventory from './Retailer/AddInventory';
+import ViewInventory from './Retailer/ViewInventory';
 import Str1 from './SVG/Str1';
+
 
 
 export {
@@ -46,7 +56,16 @@ export {
     ApprovedShipment,
     // Supplier
     AvailableShipment,
-    RequestShipment
+    RequestShipment,
+    MyShipmentStatus,
+    StartShipment,
+    // Reatiler
+    AcceptedShipments,
+    InTransitShipments,
+    CompleteShipment,
+    FinalProducts,
+    AddInventory,
+    ViewInventory
 }
 
 

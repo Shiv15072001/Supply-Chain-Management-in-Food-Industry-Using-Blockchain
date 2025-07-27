@@ -67,10 +67,12 @@ contract SupplyBase {
     mapping(uint256 => address) public purchaseRequests;
     mapping(uint256 => address) public productToManufacturer;
     mapping(address => uint256[]) public manufacturerToProcessedIds;
+    mapping(address => uint256[]) public retailerToProcessedIds;
     uint256[] public allProcessedProductIds;
+    mapping(address => uint256[]) public retailerToInventoryIds;
 
     uint256 public productCount;
-    uint256 public shipmentCount;
+    uint256 public shipmentCount;   
     uint256 public inventoryCount;
 
     event UserRegistered(address indexed user, Role role);
@@ -106,4 +108,10 @@ contract SupplyBase {
     ) public view returns (Product memory) {
         return products[_productId];
     }
+
+/// @notice Fetch all Inventory details for all
+    function getRetailerInventoryIds(address retailer) public view returns (uint256[] memory) {
+    return retailerToInventoryIds[retailer];
+}
+
 }

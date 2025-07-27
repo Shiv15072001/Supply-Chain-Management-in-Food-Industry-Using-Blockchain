@@ -5,13 +5,13 @@ import { SupplyChainContext} from "../conetxt/SupplyChain"; // Import Web3 conte
 import { AuthContext } from "../conetxt/AuthContext"; // Import Firebase Auth Context
 import { getUserData } from "../lib/firebaseConfig"; // Import Firestore function
 // import Register from "../components/Auth"; // Auth Component
-import {UserDashboard, AddProduct,GetProduct,SalesRequest,SalesList,ViewProducts,RequestPurchase,PaymentQuality,PurchaseRequestList,PurchaseList,ProcessProduct,ProcessedProduct,ApprovedShipment,AvailableShipment,RequestShipment} from "../Components/index";
+import {UserDashboard, AddProduct,GetProduct,SalesRequest,SalesList,ViewProducts,RequestPurchase,PaymentQuality,PurchaseRequestList,PurchaseList,ProcessProduct,ProcessedProduct,ApprovedShipment,AvailableShipment,RequestShipment,MyShipmentStatus,StartShipment,AcceptedShipments,InTransitShipments,CompleteShipment,FinalProducts,AddInventory,ViewInventory} from "../Components/index";
 
 const Index = () => {
 
 // USERS AUTHENTICATION CODE AND AFTER LOGIN CODE
     const { user, logout } = useContext(AuthContext); // Firebase user
-    const { connectWallet, currentUser, setCurrentUser,addProducts, getFarmerProductDetails,getAllProducts,requestPurchase,confirmDelivery,processProduct,getProcessedProductDetails,approvedShipment,getAllProcessedProducts,requestShipment } = useContext(SupplyChainContext); // Web3 User Context
+    const { connectWallet, currentUser, setCurrentUser,addProducts, getFarmerProductDetails,getAllProducts,requestPurchase,confirmDelivery,processProduct,getProcessedProductDetails,approvedShipment,getAllProcessedProducts,requestShipment,getMyShipmentStatus,startShipment,getAcceptedProductDetails,getIntransitProductDetails,completeShipment,getFinalProductDetails,addInventory,getViewInventory} = useContext(SupplyChainContext); // Web3 User Context
 
     const [walletAddress, setWalletAddress] = useState(""); // Registered wallet address
     const [role, setRole] = useState(""); // Store role
@@ -38,8 +38,15 @@ const Index = () => {
 
     const [getAllProcessedProductModal, setGetAllProcessedProductModal] = useState(false)
     const [requestShipmentModal, setRequestShipmentModal] = useState(false)
-    
-
+    const [myShipmentStatusModal, setMyShipmentStatusModal] = useState(false)
+    const [startShipmentModal, setStartShipmentModal] = useState(false)
+    // MODALS OPENING BASED ON CLICK FOR RETAILER
+    const [getAcceptedProductDetailsModal, setGetAcceptedProductDetailsModal] = useState(false)
+    const [getRetailerProductModal, setGetRetailerProductModal] = useState(false)
+    const [completeShipmentModal,setCompleteShipmentModal] = useState(false)
+    const [getFinalProductModal,setGetFinalProductModal] = useState(false); // For final products
+    const [addInventoryModal, setAddInventoryModal] = useState(false); // For adding inventory
+    const [viewInventoryModal, setViewInventoryModal] = useState(false); // For viewing inventory
 
     // 🔹 Fetch user data from Firestore when user logs in
     useEffect(() => {
@@ -127,6 +134,15 @@ const Index = () => {
         // Supplier
         setGetAllProcessedProductModal={setGetAllProcessedProductModal}
         setRequestShipmentModal={setRequestShipmentModal}
+        setMyShipmentStatusModal={setMyShipmentStatusModal}
+        setStartShipmentModal={setStartShipmentModal}
+        // Reatiler
+        setGetAcceptedProductDetailsModal={setGetAcceptedProductDetailsModal}
+        setGetRetailerProductModal={setGetRetailerProductModal}
+        setCompleteShipmentModal={setCompleteShipmentModal}
+        setGetFinalProductModal={setGetFinalProductModal}
+        setAddInventoryModal={setAddInventoryModal}
+        setViewInventoryModal={setViewInventoryModal}
         />
         {/* farmer start */}
         <AddProduct addProductModal={addProductModal} setAddProductModal={setAddProductModal}
@@ -190,6 +206,56 @@ const Index = () => {
         requestShipmentModal={requestShipmentModal}
         setRequestShipmentModal={setRequestShipmentModal}
         requestShipment={requestShipment}
+        />
+
+        <MyShipmentStatus
+        myShipmentStatusModal={myShipmentStatusModal}
+        setMyShipmentStatusModal={setMyShipmentStatusModal}
+        getMyShipmentStatus={getMyShipmentStatus}
+        />
+
+        <StartShipment
+        startShipmentModal={startShipmentModal}
+        setStartShipmentModal={setStartShipmentModal}
+        startShipment={startShipment}
+        />
+        {/* Reatiler */}
+
+        <AcceptedShipments
+        getAcceptedProductDetailsModal={getAcceptedProductDetailsModal}
+        setGetAcceptedProductDetailsModal={setGetAcceptedProductDetailsModal}
+        getAcceptedProductDetails={getAcceptedProductDetails}
+        />
+
+        <InTransitShipments
+        getRetailerProductModal={getRetailerProductModal}
+        setGetRetailerProductModal={setGetRetailerProductModal}
+        getIntransitProductDetails={getIntransitProductDetails}
+        />
+
+
+        <CompleteShipment
+        completeShipmentModal={completeShipmentModal}
+        setCompleteShipmentModal={setCompleteShipmentModal}
+        completeShipment={completeShipment}
+        />
+
+        <FinalProducts
+        getFinalProductModal={getFinalProductModal}
+        setGetFinalProductModal={setGetFinalProductModal}
+        getFinalProductDetails={getFinalProductDetails}
+        />
+
+        <AddInventory
+        addInventoryModal={addInventoryModal}
+        setAddInventoryModal={setAddInventoryModal}
+        addInventory={addInventory}
+        />
+
+        <ViewInventory
+        viewInventoryModal={viewInventoryModal}
+        setViewInventoryModal={setViewInventoryModal}
+        getViewInventory={getViewInventory}
         />
         </>
     );

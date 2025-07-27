@@ -3,14 +3,15 @@ import { useState } from 'react'
 import { Str1 } from '../index.js';
 import { ethers } from 'ethers';
 
-export default ({ setProcessedProductModal, processedProductModal, getProcessedProductDetails }) => {
-    const [processedProducts, setProcessedProducts] = useState([]); // Handle array of products
+export default ({ viewInventoryModal, setViewInventoryModal, getViewInventory }) => {
+    const [viewInventories, setViewInventories] = useState([]); // Handle array of products
+    
+    const [Info, setInfo] = useState(""); // Optional: to store additional info
 
-    const getProcessedProductDetail = async () => {
+    const getViewInventoryDetail = async () => {
         try {
-            const getData = await getProcessedProductDetails();
-            setProcessedProducts(getData); // Set array
-            console.log(typeof(getData[0].productId))
+            const getData = await getViewInventory();
+            setViewInventories(getData); // Set array
             console.log(getData);
         } catch (error) {
             console.error("Error fetching product details:", error);
@@ -18,8 +19,8 @@ export default ({ setProcessedProductModal, processedProductModal, getProcessedP
     };
 
     const removeProduct = () => {
-        setProcessedProductModal(false)
-        setProcessedProducts([])
+        setViewInventoryModal(false)
+        setViewInventories([])
     }
 
     const converTime = (time) => {
@@ -42,7 +43,7 @@ export default ({ setProcessedProductModal, processedProductModal, getProcessedP
     }
 
 
-    return processedProductModal ? (
+    return viewInventoryModal ? (
         <div className="fixed inset-0 z-10 overflow-y-auto">
             <div className='fixed inset-0 w-full h-full bg-black opacity-40' onClick={() => removeProduct()} />
             <div className='flex items-center min-h-screen px-4 py-8'>
@@ -54,34 +55,27 @@ export default ({ setProcessedProductModal, processedProductModal, getProcessedP
                     </div>
 
                     <div className='text-center mb-4'>
-                        <h4 className='text-xl font-semibold text-gray-800'>Processed Products</h4>
+                        <h4 className='text-xl font-semibold text-gray-800'>Inventory</h4>
                         <button
-                            onClick={getProcessedProductDetail}
+                            onClick={getViewInventoryDetail}
                             className='mt-4 py-2 px-4 font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg'
                         >
-                            View My Products
+                            View My Inventory
                         </button>
                     </div>
 
-                    {processedProducts.length === 0 ? (
+                    {viewInventories.length === 0 ? (
                         <div className='text-center text-gray-600'>No products found or not yet fetched.</div>
                     ) : (
                         <div className='grid grid-cols-1 gap-4'>
-                            {processedProducts.map((product, index) => (
+                            {viewInventories.map((product, index) => (
                                 <div key={index} className='p-4 border rounded-lg bg-gray-50 shadow-sm'>
                                     <p><strong>ID:</strong> {product.productId}</p>
-                                    <p><strong>Processing Date:</strong> {converTime(product.processingDate)}</p>
-                                    <p><strong>Methods:</strong> {product.methods}</p>
-                                    <p><strong>Additives:</strong> {product.additives}</p>
-                                    <p><strong>Price:</strong> {ethers.formatEther(product.price)} ETH</p>
-                                    <p><strong>Manufacturer:</strong> {product.manufacturer} </p>
-                                    <p>
-                                        <strong>ShipmentStatus:</strong> {product.shipmentStatus == 0 ? "NOT APPROVED" : product.shipmentStatus == 1 ? "PENDING APPROVAL" : product.shipmentStatus == 2 ? "ACCEPTED":product.shipmentStatus == 3 ? "IN TRANSIT" : "DELIVERED"}
-                                    </p>
-                                    <p><strong>Supplier:</strong> {product.supplier} </p>
+                                    <p><strong>Arrival Date:</strong> {converTime(product.arrivalDate)}</p>
+                                    <p><strong>ShelfLife:</strong> {product.shelfLife}</p>
+                                    <p><strong>Storage Conditions:</strong> {product.storageConditions}</p>
                                     <p><strong>Retailer:</strong> {product.retailer} </p>
-                                    <p><strong>PickupTime:</strong> {product.pickupTime > 0 ?   formatDate(product.pickupTime)  : "N/A"}</p>
-                                    <p><strong>DeliveryTime:</strong> {product.deliveryTime > 0 ?formatDate(product.deliveryTime) : "N/A"}</p>
+                                    
                                 </div>
                             ))}
                         </div>

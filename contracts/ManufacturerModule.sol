@@ -89,9 +89,11 @@ contract ManufacturerModule is SupplyBase {
         require(proc.shipmentStatus == Stage.PENDING_APPROVAL, "No supplier");
 
         proc.shipmentStatus = Stage.ACCEPTED;
+        
         proc.retailer = _retailer;
         proc.pickupTime = _pickupTime;
         proc.deliveryTime = _deliveryTime;
+        retailerToProcessedIds[_retailer].push(_productId);
     }
 
     /// @notice Fetch all product details fetch by manufacturer

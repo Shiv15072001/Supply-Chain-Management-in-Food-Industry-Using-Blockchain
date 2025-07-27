@@ -3,14 +3,17 @@ import { useState } from 'react'
 import { Str1 } from '../index.js';
 import { ethers } from 'ethers';
 
-export default ({ setProcessedProductModal, processedProductModal, getProcessedProductDetails }) => {
+export default ({ getRetailerProductModal, setGetRetailerProductModal, getIntransitProductDetails }) => {
     const [processedProducts, setProcessedProducts] = useState([]); // Handle array of products
 
-    const getProcessedProductDetail = async () => {
+    const [Info, setInfo] = useState(""); // Optional: to store additional info
+
+    const getRetailerProcessedProductDetail = async () => {
         try {
-            const getData = await getProcessedProductDetails();
+            const getData = await getIntransitProductDetails();
             setProcessedProducts(getData); // Set array
-            console.log(typeof(getData[0].productId))
+            console.log("p_length",processedProducts.length)
+            // console.log(typeof(getData[0].productId))
             console.log(getData);
         } catch (error) {
             console.error("Error fetching product details:", error);
@@ -18,7 +21,7 @@ export default ({ setProcessedProductModal, processedProductModal, getProcessedP
     };
 
     const removeProduct = () => {
-        setProcessedProductModal(false)
+        setGetRetailerProductModal(false)
         setProcessedProducts([])
     }
 
@@ -42,7 +45,7 @@ export default ({ setProcessedProductModal, processedProductModal, getProcessedP
     }
 
 
-    return processedProductModal ? (
+    return getRetailerProductModal ? (
         <div className="fixed inset-0 z-10 overflow-y-auto">
             <div className='fixed inset-0 w-full h-full bg-black opacity-40' onClick={() => removeProduct()} />
             <div className='flex items-center min-h-screen px-4 py-8'>
@@ -54,9 +57,9 @@ export default ({ setProcessedProductModal, processedProductModal, getProcessedP
                     </div>
 
                     <div className='text-center mb-4'>
-                        <h4 className='text-xl font-semibold text-gray-800'>Processed Products</h4>
+                        <h4 className='text-xl font-semibold text-gray-800'>In Transit Products</h4>
                         <button
-                            onClick={getProcessedProductDetail}
+                            onClick={getRetailerProcessedProductDetail}
                             className='mt-4 py-2 px-4 font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg'
                         >
                             View My Products
@@ -64,7 +67,7 @@ export default ({ setProcessedProductModal, processedProductModal, getProcessedP
                     </div>
 
                     {processedProducts.length === 0 ? (
-                        <div className='text-center text-gray-600'>No products found or not yet fetched.</div>
+                        <div className='text-center text-gray-600'>No In Transit Shipments found or not yet fetched.</div>
                     ) : (
                         <div className='grid grid-cols-1 gap-4'>
                             {processedProducts.map((product, index) => (

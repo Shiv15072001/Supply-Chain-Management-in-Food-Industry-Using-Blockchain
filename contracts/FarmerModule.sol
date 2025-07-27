@@ -17,6 +17,7 @@ contract FarmerModule is SupplyBase {
         productCount++;
 
         Product memory newProduct = Product({
+            // 
             id: productCount,
             cropType: _cropType,
             harvestDate: _harvestDate,
@@ -27,6 +28,7 @@ contract FarmerModule is SupplyBase {
             price: _price,
             farmer: msg.sender,
             isSold: false
+            // 
         });
 
         products[productCount] = newProduct;
@@ -40,6 +42,5 @@ contract FarmerModule is SupplyBase {
     function getFarmerProductIds() public view onlyRole(Role.Farmer) returns (uint256[] memory) {
         return farmerProducts[msg.sender];
     }
-
 
 }

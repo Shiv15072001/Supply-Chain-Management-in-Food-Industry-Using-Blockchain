@@ -3,14 +3,17 @@ import { useState } from 'react'
 import { Str1 } from '../index.js';
 import { ethers } from 'ethers';
 
-export default ({ setProcessedProductModal, processedProductModal, getProcessedProductDetails }) => {
+export default ({ getFinalProductModal, setGetFinalProductModal, getFinalProductDetails }) => {
     const [processedProducts, setProcessedProducts] = useState([]); // Handle array of products
+    
+    const [Info, setInfo] = useState(""); // Optional: to store additional info
 
-    const getProcessedProductDetail = async () => {
+    const getFinalProductDetail = async () => {
         try {
-            const getData = await getProcessedProductDetails();
+            const getData = await getFinalProductDetails();
             setProcessedProducts(getData); // Set array
-            console.log(typeof(getData[0].productId))
+            console.log("p_length",processedProducts.length)
+            // console.log(typeof(getData[0].productId))
             console.log(getData);
         } catch (error) {
             console.error("Error fetching product details:", error);
@@ -18,7 +21,7 @@ export default ({ setProcessedProductModal, processedProductModal, getProcessedP
     };
 
     const removeProduct = () => {
-        setProcessedProductModal(false)
+        setGetFinalProductModal(false)
         setProcessedProducts([])
     }
 
@@ -42,7 +45,7 @@ export default ({ setProcessedProductModal, processedProductModal, getProcessedP
     }
 
 
-    return processedProductModal ? (
+    return getFinalProductModal ? (
         <div className="fixed inset-0 z-10 overflow-y-auto">
             <div className='fixed inset-0 w-full h-full bg-black opacity-40' onClick={() => removeProduct()} />
             <div className='flex items-center min-h-screen px-4 py-8'>
@@ -54,9 +57,9 @@ export default ({ setProcessedProductModal, processedProductModal, getProcessedP
                     </div>
 
                     <div className='text-center mb-4'>
-                        <h4 className='text-xl font-semibold text-gray-800'>Processed Products</h4>
+                        <h4 className='text-xl font-semibold text-gray-800'>Final Products</h4>
                         <button
-                            onClick={getProcessedProductDetail}
+                            onClick={getFinalProductDetail}
                             className='mt-4 py-2 px-4 font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg'
                         >
                             View My Products
