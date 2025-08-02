@@ -29,6 +29,9 @@ import CompleteShipment from './Retailer/CompleteShipment'
 import FinalProducts from './Retailer/FinalProducts';
 import AddInventory from './Retailer/AddInventory';
 import ViewInventory from './Retailer/ViewInventory';
+// Coustomer
+import ViewProductsCustomer from './Customer/ViewProductsCustomer'
+import FinalProductDetailsModal from './Customer/FinalProductDetailsModal'
 import Str1 from './SVG/Str1';
 
 
@@ -65,7 +68,10 @@ export {
     CompleteShipment,
     FinalProducts,
     AddInventory,
-    ViewInventory
+    ViewInventory,
+    // Coustomer
+    ViewProductsCustomer,
+    FinalProductDetailsModal
 }
 
 

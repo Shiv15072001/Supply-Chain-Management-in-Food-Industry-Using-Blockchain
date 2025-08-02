@@ -964,6 +964,66 @@ export const SupplyChainProvider = ({ children }) => {
         }
     }
 
+    // consumer
+
+const getViewInventoryConsumer = async () => {
+    try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = fetchContract(signer);
+
+        const inventoryCount = await contract.inventoryCount(); // fetch total count
+        const inventoryList = [];
+
+        for (let i = 1; i <= Number(inventoryCount); i++) {
+            const inventory = await contract.inventories(i); // assuming this exists
+            const parsedInventory = {
+                productId: inventory.productId?.toString(),
+                arrivalDate: new Date(Number(inventory.arrivalDate)),
+                shelfLife: inventory.shelfLife?.toString(),
+                storageConditions: inventory.storageConditions,
+                retailer: inventory.retailer,
+            };
+            inventoryList.push(parsedInventory);
+        }
+
+        console.log("🧾 All Inventories for Consumer:", inventoryList);
+        return inventoryList;
+    } catch (error) {
+        console.error("❌ Error fetching inventory data:", error);
+        return [];
+    }
+};
+
+    const getFinalProductDetailsCustomer = async (productId) => {
+    try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = fetchContract(signer);
+
+        const product = await contract.getProcessingDetails(productId);
+
+        const processedProductDetail = {
+            productId: product[0].toString(),
+            processingDate: new Date(Number(product[1])),
+            methods: product[2],
+            additives: product[3],
+            price: product[4],
+            manufacturer: product[5],
+            shipmentStatus: product[6],
+            supplier: product[7],
+            retailer: product[8],
+            pickupTime: product[9],
+            deliveryTime: product[10],
+        };
+
+        return processedProductDetail
+    } catch (error) {
+        console.error("Error fetching final product detail:", error);
+    }
+};
+
+
 
     //**Fetch User Role**
     const fetchUserRole = async (address) => {
@@ -1049,7 +1109,10 @@ export const SupplyChainProvider = ({ children }) => {
                 completeShipment,
                 getFinalProductDetails,
                 addInventory,
-                getViewInventory
+                getViewInventory,
+                // Consumer
+                getViewInventoryConsumer,
+                getFinalProductDetailsCustomer
             }}
         >
             {children}

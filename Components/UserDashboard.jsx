@@ -2,7 +2,7 @@ import Register from "./Auth"; // Auth Component
 import image from "../images/index"; // Import images
 import Image from 'next/image';
 
-export default ({ loading, isAuthenticated, walletAddress, shopName, handleConnectWallet, logout, user, role,setAddProductModal,setGetProductModal,setGetSalesRequestModal,setGetSalesListModal,setGetAllProductsModal,setRequestPurchaseModal,setConfirmDeliveryModal,setPurchaseRequestListModal,setPurchaseListModal,setProcessProductModal,setProcessedProductModal,setApprovedShipmentModal,setGetAllProcessedProductModal,setRequestShipmentModal,setMyShipmentStatusModal,setStartShipmentModal ,setGetAcceptedProductDetailsModal, setGetRetailerProductModal,setCompleteShipmentModal,setGetFinalProductModal,setAddInventoryModal,setViewInventoryModal}) => {
+export default ({ loading, isAuthenticated, walletAddress, shopName, handleConnectWallet, logout, user, role,setAddProductModal,setGetProductModal,setGetSalesRequestModal,setGetSalesListModal,setGetAllProductsModal,setRequestPurchaseModal,setConfirmDeliveryModal,setPurchaseRequestListModal,setPurchaseListModal,setProcessProductModal,setProcessedProductModal,setApprovedShipmentModal,setGetAllProcessedProductModal,setRequestShipmentModal,setMyShipmentStatusModal,setStartShipmentModal ,setGetAcceptedProductDetailsModal, setGetRetailerProductModal,setCompleteShipmentModal,setGetFinalProductModal,setAddInventoryModal,setViewInventoryModal,setViewProductCustomerModal}) => {
 
     const roleActions = {
         1: [
@@ -36,8 +36,9 @@ export default ({ loading, isAuthenticated, walletAddress, shopName, handleConne
             { name: "View Inventory", avatar: image.viewInventory, action: () => setViewInventoryModal(true) },
         ],
         5: [
-            { name: "Scan Product", avatar: image.scanProduct, action: () => alert("Scan Product action") },
-            { name: "Verify Source", avatar: image.verifySource, action: () => alert("Verify Source action") },
+            { name: "View Products", avatar: image.viewProducts, action: () => setViewProductCustomerModal(true) },
+            // { name: "Scan Product", avatar: image.scanProduct, action: () => alert("Scan Product action") },
+            // { name: "Verify Source", avatar: image.verifySource, action: () => alert("Verify Source action") },
         ],
     };
     const actions = roleActions[role] || [];

@@ -23,7 +23,8 @@ import completeshipment from "./User/Retailer/complete_shipment.jpg"
 import finalProduct from "./User/Retailer/final_products.jpg"
 import addInventory from "./User/Retailer/add_inventory.jpg"
 import viewInventory from "./User/Retailer/view_inventory.jpg"
-
+// consumer
+import  viewProducts  from "./User/Coustomer/view_products.jpg"
 
 
 export default{
@@ -52,5 +53,7 @@ export default{
     completeshipment,
     finalProduct,
     addInventory,
-    viewInventory
+    viewInventory,
+    // consumer
+    viewProducts
 };

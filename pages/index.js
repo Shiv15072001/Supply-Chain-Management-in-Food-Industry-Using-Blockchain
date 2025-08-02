@@ -1,17 +1,17 @@
 
 
 import { useContext, useEffect, useState } from "react";
-import { SupplyChainContext} from "../conetxt/SupplyChain"; // Import Web3 context
+import { SupplyChainContext } from "../conetxt/SupplyChain"; // Import Web3 context
 import { AuthContext } from "../conetxt/AuthContext"; // Import Firebase Auth Context
 import { getUserData } from "../lib/firebaseConfig"; // Import Firestore function
 // import Register from "../components/Auth"; // Auth Component
-import {UserDashboard, AddProduct,GetProduct,SalesRequest,SalesList,ViewProducts,RequestPurchase,PaymentQuality,PurchaseRequestList,PurchaseList,ProcessProduct,ProcessedProduct,ApprovedShipment,AvailableShipment,RequestShipment,MyShipmentStatus,StartShipment,AcceptedShipments,InTransitShipments,CompleteShipment,FinalProducts,AddInventory,ViewInventory} from "../Components/index";
+import { UserDashboard, AddProduct, GetProduct, SalesRequest, SalesList, ViewProducts, RequestPurchase, PaymentQuality, PurchaseRequestList, PurchaseList, ProcessProduct, ProcessedProduct, ApprovedShipment, AvailableShipment, RequestShipment, MyShipmentStatus, StartShipment, AcceptedShipments, InTransitShipments, CompleteShipment, FinalProducts, AddInventory, ViewInventory, ViewProductsCustomer, FinalProductDetailsModal } from "../Components/index";
 
 const Index = () => {
 
-// USERS AUTHENTICATION CODE AND AFTER LOGIN CODE
+    // USERS AUTHENTICATION CODE AND AFTER LOGIN CODE
     const { user, logout } = useContext(AuthContext); // Firebase user
-    const { connectWallet, currentUser, setCurrentUser,addProducts, getFarmerProductDetails,getAllProducts,requestPurchase,confirmDelivery,processProduct,getProcessedProductDetails,approvedShipment,getAllProcessedProducts,requestShipment,getMyShipmentStatus,startShipment,getAcceptedProductDetails,getIntransitProductDetails,completeShipment,getFinalProductDetails,addInventory,getViewInventory} = useContext(SupplyChainContext); // Web3 User Context
+    const { connectWallet, currentUser, setCurrentUser, addProducts, getFarmerProductDetails, getAllProducts, requestPurchase, confirmDelivery, processProduct, getProcessedProductDetails, approvedShipment, getAllProcessedProducts, requestShipment, getMyShipmentStatus, startShipment, getAcceptedProductDetails, getIntransitProductDetails, completeShipment, getFinalProductDetails, addInventory, getViewInventory, getViewInventoryConsumer, getFinalProductDetailsCustomer } = useContext(SupplyChainContext); // Web3 User Context
 
     const [walletAddress, setWalletAddress] = useState(""); // Registered wallet address
     const [role, setRole] = useState(""); // Store role
@@ -24,7 +24,7 @@ const Index = () => {
     const [addProductModal, setAddProductModal] = useState(false);
     const [getProductModal, setGetProductModal] = useState(false);
     const [getSalesRequestModal, setGetSalesRequestModal] = useState(false);
-    const [getSalesListModal,setGetSalesListModal] = useState(false);  
+    const [getSalesListModal, setGetSalesListModal] = useState(false);
     // MODALS OPENING BASED ON CLICK FOR MANUFACTURER
     const [getAllProductsModal, setGetAllProductsModal] = useState(false)
     const [requestPurchaseModal, setRequestPurchaseModal] = useState(false)
@@ -43,10 +43,24 @@ const Index = () => {
     // MODALS OPENING BASED ON CLICK FOR RETAILER
     const [getAcceptedProductDetailsModal, setGetAcceptedProductDetailsModal] = useState(false)
     const [getRetailerProductModal, setGetRetailerProductModal] = useState(false)
-    const [completeShipmentModal,setCompleteShipmentModal] = useState(false)
-    const [getFinalProductModal,setGetFinalProductModal] = useState(false); // For final products
+    const [completeShipmentModal, setCompleteShipmentModal] = useState(false)
+    const [getFinalProductModal, setGetFinalProductModal] = useState(false); // For final products
     const [addInventoryModal, setAddInventoryModal] = useState(false); // For adding inventory
     const [viewInventoryModal, setViewInventoryModal] = useState(false); // For viewing inventory
+    // MODALS OPENING BASED ON CLICK FOR CUSTOMER
+    const [viewProductCustomerModal, setViewProductCustomerModal] = useState(false);
+    const [selectedFinalProduct, setSelectedFinalProduct] = useState(null);
+    const [showFinalModal, setShowFinalModal] = useState(false);
+    const handleViewFinalProduct = async (productId) => {
+        const product = await getFinalProductDetailsCustomer(productId); // You can define this logic or fetch API
+        setSelectedFinalProduct(product);
+        setShowFinalModal(true);
+    };
+    // const onViewFinalProduct = (product) => {
+    // setSelectedFinalProduct(product);
+    // setShowFinalModal(true);
+    // };
+
 
     // 🔹 Fetch user data from Firestore when user logs in
     useEffect(() => {
@@ -109,157 +123,180 @@ const Index = () => {
 
     return (
         <>
-        <UserDashboard loading = {loading}
-        isAuthenticated={isAuthenticated}
-        walletAddress={walletAddress}
-        shopName={shopName}
-        handleConnectWallet={handleConnectWallet}
-        logout={logout}
-        user={user}
-        role={role}
-        //Farmer
-        setAddProductModal={setAddProductModal}
-        setGetProductModal={setGetProductModal}
-        setGetSalesRequestModal={setGetSalesRequestModal}
-        setGetSalesListModal={setGetSalesListModal}
-        // Manufacturer
-        setGetAllProductsModal={setGetAllProductsModal}
-        setRequestPurchaseModal={setRequestPurchaseModal}
-        setConfirmDeliveryModal={setConfirmDeliveryModal}
-        setPurchaseRequestListModal={setPurchaseRequestListModal}
-        setPurchaseListModal={setPurchaseListModal}
-        setProcessProductModal={setProcessProductModal}
-        setProcessedProductModal={setProcessedProductModal}
-        setApprovedShipmentModal={setApprovedShipmentModal}
-        // Supplier
-        setGetAllProcessedProductModal={setGetAllProcessedProductModal}
-        setRequestShipmentModal={setRequestShipmentModal}
-        setMyShipmentStatusModal={setMyShipmentStatusModal}
-        setStartShipmentModal={setStartShipmentModal}
-        // Reatiler
-        setGetAcceptedProductDetailsModal={setGetAcceptedProductDetailsModal}
-        setGetRetailerProductModal={setGetRetailerProductModal}
-        setCompleteShipmentModal={setCompleteShipmentModal}
-        setGetFinalProductModal={setGetFinalProductModal}
-        setAddInventoryModal={setAddInventoryModal}
-        setViewInventoryModal={setViewInventoryModal}
-        />
-        {/* farmer start */}
-        <AddProduct addProductModal={addProductModal} setAddProductModal={setAddProductModal}
-        addProducts={addProducts}/>
+            <UserDashboard loading={loading}
+                isAuthenticated={isAuthenticated}
+                walletAddress={walletAddress}
+                shopName={shopName}
+                handleConnectWallet={handleConnectWallet}
+                logout={logout}
+                user={user}
+                role={role}
+                //Farmer
+                setAddProductModal={setAddProductModal}
+                setGetProductModal={setGetProductModal}
+                setGetSalesRequestModal={setGetSalesRequestModal}
+                setGetSalesListModal={setGetSalesListModal}
+                // Manufacturer
+                setGetAllProductsModal={setGetAllProductsModal}
+                setRequestPurchaseModal={setRequestPurchaseModal}
+                setConfirmDeliveryModal={setConfirmDeliveryModal}
+                setPurchaseRequestListModal={setPurchaseRequestListModal}
+                setPurchaseListModal={setPurchaseListModal}
+                setProcessProductModal={setProcessProductModal}
+                setProcessedProductModal={setProcessedProductModal}
+                setApprovedShipmentModal={setApprovedShipmentModal}
+                // Supplier
+                setGetAllProcessedProductModal={setGetAllProcessedProductModal}
+                setRequestShipmentModal={setRequestShipmentModal}
+                setMyShipmentStatusModal={setMyShipmentStatusModal}
+                setStartShipmentModal={setStartShipmentModal}
+                // Reatiler
+                setGetAcceptedProductDetailsModal={setGetAcceptedProductDetailsModal}
+                setGetRetailerProductModal={setGetRetailerProductModal}
+                setCompleteShipmentModal={setCompleteShipmentModal}
+                setGetFinalProductModal={setGetFinalProductModal}
+                setAddInventoryModal={setAddInventoryModal}
+                setViewInventoryModal={setViewInventoryModal}
+                // Customer
+                setViewProductCustomerModal={setViewProductCustomerModal}
+            />
 
-        <GetProduct getProductModal={getProductModal}
-        setGetProductModal={setGetProductModal}
-        getFarmerProductDetails={getFarmerProductDetails}
-        />
-        <SalesRequest getSalesRequestModal={getSalesRequestModal}
-        setGetSalesRequestModal={setGetSalesRequestModal}
-        walletAddress={walletAddress}
-        />
-        <SalesList getSalesListModal={getSalesListModal}
-        setGetSalesListModal={setGetSalesListModal}
-        walletAddress={walletAddress}
-        />
-        {/* farmer end */}
-        {/* manufacturer start */}
-        <ViewProducts getAllProductsModal={getAllProductsModal}
-        setGetAllProductsModal={setGetAllProductsModal}
-        getAllProducts={getAllProducts}
-        />
-        <RequestPurchase requestPurchaseModal={requestPurchaseModal}
-        setRequestPurchaseModal={setRequestPurchaseModal}
-        requestPurchase={requestPurchase}
-        
-        />
-        <PaymentQuality confirmDeliveryModal={confirmDeliveryModal}
-        setConfirmDeliveryModal={setConfirmDeliveryModal}
-        confirmDelivery={confirmDelivery}
-        />
-        <PurchaseRequestList purchaseRequestListModal={purchaseRequestListModal}
-        setPurchaseRequestListModal={setPurchaseRequestListModal}
-        walletAddress={walletAddress}
-        />
-        <PurchaseList purchaseListModal={purchaseListModal}
-        setPurchaseListModal={setPurchaseListModal}
-        walletAddress={walletAddress}
-        />
-        <ProcessProduct processProductModal={processProductModal}
-        setProcessProductModal={setProcessProductModal}
-        processProduct={processProduct}
-        />
-        <ProcessedProduct processedProductModal={processedProductModal}
-        setProcessedProductModal={setProcessedProductModal}
-        getProcessedProductDetails={getProcessedProductDetails}
-        />
-        <ApprovedShipment approvedShipmentModal={approvedShipmentModal}
-        setApprovedShipmentModal={setApprovedShipmentModal}
-        approvedShipment={approvedShipment}
-        />
-        {/* manufacturer end */}
-        {/* Supplier */}
-        <AvailableShipment
-        getAllProcessedProductModal={getAllProcessedProductModal}
-        setGetAllProcessedProductModal={setGetAllProcessedProductModal}
-        getAllProcessedProducts={getAllProcessedProducts}
-        />
-        <RequestShipment
-        requestShipmentModal={requestShipmentModal}
-        setRequestShipmentModal={setRequestShipmentModal}
-        requestShipment={requestShipment}
+            {/* farmer start */}
+            <AddProduct addProductModal={addProductModal} setAddProductModal={setAddProductModal}
+                addProducts={addProducts} />
+
+            <GetProduct getProductModal={getProductModal}
+                setGetProductModal={setGetProductModal}
+                getFarmerProductDetails={getFarmerProductDetails}
+            />
+            <SalesRequest getSalesRequestModal={getSalesRequestModal}
+                setGetSalesRequestModal={setGetSalesRequestModal}
+                walletAddress={walletAddress}
+            />
+            <SalesList getSalesListModal={getSalesListModal}
+                setGetSalesListModal={setGetSalesListModal}
+                walletAddress={walletAddress}
+            />
+            {/* farmer end */}
+            {/* manufacturer start */}
+            <ViewProducts getAllProductsModal={getAllProductsModal}
+                setGetAllProductsModal={setGetAllProductsModal}
+                getAllProducts={getAllProducts}
+            />
+            <RequestPurchase requestPurchaseModal={requestPurchaseModal}
+                setRequestPurchaseModal={setRequestPurchaseModal}
+                requestPurchase={requestPurchase}
+
+            />
+            <PaymentQuality confirmDeliveryModal={confirmDeliveryModal}
+                setConfirmDeliveryModal={setConfirmDeliveryModal}
+                confirmDelivery={confirmDelivery}
+            />
+            <PurchaseRequestList purchaseRequestListModal={purchaseRequestListModal}
+                setPurchaseRequestListModal={setPurchaseRequestListModal}
+                walletAddress={walletAddress}
+            />
+            <PurchaseList purchaseListModal={purchaseListModal}
+                setPurchaseListModal={setPurchaseListModal}
+                walletAddress={walletAddress}
+            />
+            <ProcessProduct processProductModal={processProductModal}
+                setProcessProductModal={setProcessProductModal}
+                processProduct={processProduct}
+            />
+            <ProcessedProduct processedProductModal={processedProductModal}
+                setProcessedProductModal={setProcessedProductModal}
+                getProcessedProductDetails={getProcessedProductDetails}
+            />
+            <ApprovedShipment approvedShipmentModal={approvedShipmentModal}
+                setApprovedShipmentModal={setApprovedShipmentModal}
+                approvedShipment={approvedShipment}
+            />
+            {/* manufacturer end */}
+            {/* Supplier */}
+            <AvailableShipment
+                getAllProcessedProductModal={getAllProcessedProductModal}
+                setGetAllProcessedProductModal={setGetAllProcessedProductModal}
+                getAllProcessedProducts={getAllProcessedProducts}
+            />
+            <RequestShipment
+                requestShipmentModal={requestShipmentModal}
+                setRequestShipmentModal={setRequestShipmentModal}
+                requestShipment={requestShipment}
+            />
+
+            <MyShipmentStatus
+                myShipmentStatusModal={myShipmentStatusModal}
+                setMyShipmentStatusModal={setMyShipmentStatusModal}
+                getMyShipmentStatus={getMyShipmentStatus}
+            />
+
+            <StartShipment
+                startShipmentModal={startShipmentModal}
+                setStartShipmentModal={setStartShipmentModal}
+                startShipment={startShipment}
+            />
+            {/* Reatiler */}
+
+            <AcceptedShipments
+                getAcceptedProductDetailsModal={getAcceptedProductDetailsModal}
+                setGetAcceptedProductDetailsModal={setGetAcceptedProductDetailsModal}
+                getAcceptedProductDetails={getAcceptedProductDetails}
+            />
+
+            <InTransitShipments
+                getRetailerProductModal={getRetailerProductModal}
+                setGetRetailerProductModal={setGetRetailerProductModal}
+                getIntransitProductDetails={getIntransitProductDetails}
+            />
+
+
+            <CompleteShipment
+                completeShipmentModal={completeShipmentModal}
+                setCompleteShipmentModal={setCompleteShipmentModal}
+                completeShipment={completeShipment}
+            />
+
+            <FinalProducts
+                getFinalProductModal={getFinalProductModal}
+                setGetFinalProductModal={setGetFinalProductModal}
+                getFinalProductDetails={getFinalProductDetails}
+            />
+
+            <AddInventory
+                addInventoryModal={addInventoryModal}
+                setAddInventoryModal={setAddInventoryModal}
+                addInventory={addInventory}
+            />
+
+            <ViewInventory
+                viewInventoryModal={viewInventoryModal}
+                setViewInventoryModal={setViewInventoryModal}
+                getViewInventory={getViewInventory}
+            />
+
+            {/* Customer */}
+            <ViewProductsCustomer
+                viewProductCustomerModal={viewProductCustomerModal}
+                setViewProductCustomerModal={setViewProductCustomerModal}
+                getViewInventoryConsumer={getViewInventoryConsumer}
+                onViewFinalProduct={handleViewFinalProduct}
+            />
+
+            {/* <FinalProductDetailsModal
+                showFinalModal={showFinalModal}
+                setShowFinalModal={setShowFinalModal}
+                selectedFinalProduct={selectedFinalProduct}
+            /> */}
+        <FinalProductDetailsModal
+            product={selectedFinalProduct}
+            showModal={showFinalModal}
+            setShowModal={setShowFinalModal}
         />
 
-        <MyShipmentStatus
-        myShipmentStatusModal={myShipmentStatusModal}
-        setMyShipmentStatusModal={setMyShipmentStatusModal}
-        getMyShipmentStatus={getMyShipmentStatus}
-        />
-
-        <StartShipment
-        startShipmentModal={startShipmentModal}
-        setStartShipmentModal={setStartShipmentModal}
-        startShipment={startShipment}
-        />
-        {/* Reatiler */}
-
-        <AcceptedShipments
-        getAcceptedProductDetailsModal={getAcceptedProductDetailsModal}
-        setGetAcceptedProductDetailsModal={setGetAcceptedProductDetailsModal}
-        getAcceptedProductDetails={getAcceptedProductDetails}
-        />
-
-        <InTransitShipments
-        getRetailerProductModal={getRetailerProductModal}
-        setGetRetailerProductModal={setGetRetailerProductModal}
-        getIntransitProductDetails={getIntransitProductDetails}
-        />
-
-
-        <CompleteShipment
-        completeShipmentModal={completeShipmentModal}
-        setCompleteShipmentModal={setCompleteShipmentModal}
-        completeShipment={completeShipment}
-        />
-
-        <FinalProducts
-        getFinalProductModal={getFinalProductModal}
-        setGetFinalProductModal={setGetFinalProductModal}
-        getFinalProductDetails={getFinalProductDetails}
-        />
-
-        <AddInventory
-        addInventoryModal={addInventoryModal}
-        setAddInventoryModal={setAddInventoryModal}
-        addInventory={addInventory}
-        />
-
-        <ViewInventory
-        viewInventoryModal={viewInventoryModal}
-        setViewInventoryModal={setViewInventoryModal}
-        getViewInventory={getViewInventory}
-        />
         </>
     );
-    
+
 };
 
 export default Index;
