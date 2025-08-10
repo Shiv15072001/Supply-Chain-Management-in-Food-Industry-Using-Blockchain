@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "copy-to-clipboard": "^3.3.3",
+    "dotenv": "^17.2.1",
+    "env": "^0.0.2",
     "ethers": "^6.1.0",
     "firebase": "^11.5.0",
     "hardhat": "^2.22.19",
